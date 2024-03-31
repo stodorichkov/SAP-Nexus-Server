@@ -14,6 +14,7 @@
 	<name>nexus</name>
 	<description>nexus</description>
 	<properties>
+		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
@@ -46,6 +47,11 @@
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
