@@ -17,7 +17,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleMapper roleMapper;
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
        final var user = this.userRepository
@@ -27,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
        final var authorities = user
                .getRoles()
                .stream()
-               .map(roleMapper::toGrantedAuthority)
+               .map(roleMapper::map)
                .toList();
 
        return new User(user.getUsername(), user.getPassword(), authorities);

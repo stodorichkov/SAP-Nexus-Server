@@ -5,6 +5,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestMappingConstants {
-    public static final String AUTH = "/api/auth/**";
-    public static final String ADMIN = "/api/admin/**";
+    public static final String AUTH = "/auth/**";
+    public static final String ADMIN = "/admin/**";
 }

@@ -4,10 +4,10 @@ import com.example.nexus.model.entity.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RoleMapper {
-    @Mapping(target = "authority", source = "name")
-    GrantedAuthority toGrantedAuthority(Role entity);
+    @Mapping(target = "role", source = "name")
+    SimpleGrantedAuthority map(Role entity);
 }
