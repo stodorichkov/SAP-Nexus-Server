@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestMappingConstants {
-    public static final String AUTH = "/api/auth/**";
-    public static final String ADMIN = "/api/admin/**";
+public class MessageConstants {
+    public static final String USER_NOT_FOUND = "User not found!";
 }
