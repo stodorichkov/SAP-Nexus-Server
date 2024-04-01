@@ -1,6 +1,7 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.AuthenticationRequest;
+import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,5 +31,11 @@ public class AuthController {
                 .status(HttpStatus.CREATED)
                 .headers(headers)
                 .build();
+    }
+
+    @PostMapping("/registration")
+    ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+
+        return null; //placeholder
     }
 }
