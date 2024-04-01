@@ -3,6 +3,7 @@ package com.example.nexus.controller;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
+import com.example.nexus.service.RegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
+    private final RegisterService registerService;
 
     @PostMapping("/token")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
@@ -35,7 +37,8 @@ public class AuthController {
 
     @PostMapping("/registration")
     ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        var bodyContent = registerService.registerUser(registerRequest);
 
-        return null; //placeholder
+        return ResponseEntity.status(HttpStatus.CREATED).body(bodyContent);
     }
 }

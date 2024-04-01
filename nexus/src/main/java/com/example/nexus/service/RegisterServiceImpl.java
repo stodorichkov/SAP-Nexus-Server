@@ -28,22 +28,21 @@ public class RegisterServiceImpl implements RegisterService{
 
     @Override
     @Transactional
-    public String registerUser(RegisterRequest registerRequest) {
+    public Profile registerUser(RegisterRequest registerRequest) {
 
         if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
             throw new UnauthorizedException("Repeated password doesn't match original.");
         }
 
-        User newUser = registerMapper.mapUser(registerRequest);
+        var newUser = registerMapper.mapUser(registerRequest);
         newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
         roleRepository.findByName("User").
                 ifPresent(userRole -> newUser.getRoles().add(userRole));
         userRepository.save(newUser);
 
-        Profile newProfile = registerMapper.mapProfile(registerRequest);
+        var newProfile = registerMapper.mapProfile(registerRequest);
         newProfile.setUser(newUser);
-        profileRepository.save(newProfile);
 
-        return "Success";
+        return profileRepository.save(newProfile);
     }
 }
