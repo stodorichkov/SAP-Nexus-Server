@@ -1,5 +1,6 @@
 package com.example.nexus.service;
 
+import com.example.nexus.exception.UnauthorizedException;
 import com.example.nexus.mapper.RegisterMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.Role;
@@ -29,7 +30,12 @@ public class RegisterServiceImpl implements RegisterService{
     @Transactional
     public String registerUser(RegisterRequest registerRequest) {
 
+        if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
+            throw new UnauthorizedException("Repeated password doesn't match original.");
+        }
+
         User newUser = registerMapper.mapUser(registerRequest);
+        newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
         roleRepository.findByName("User").
                 ifPresent(userRole -> newUser.getRoles().add(userRole));
         userRepository.save(newUser);
