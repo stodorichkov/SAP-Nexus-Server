@@ -7,7 +7,6 @@ import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
 import com.example.nexus.exception.UserAlreadyExistsException;
 import com.example.nexus.mapper.RegisterMapper;
-import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.User;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.model.payload.request.RegisterRequest;
@@ -15,8 +14,6 @@ import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
 import com.example.nexus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,23 +49,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<Profile> registerUser(RegisterRequest registerRequest) {
+    public void registerUser(RegisterRequest registerRequest) {
+        if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
+            throw new UserAlreadyExistsException(MessageConstants.USER_ALREADY_EXISTS);
+        }
 
         validateRequestedPassword(registerRequest);
 
-        final var newUser = registerMapper.mapUser(registerRequest);
-        isUserNameTaken(newUser.getUsername());
-        newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
+        final var newProfile = registerMapper.mapProfile(registerRequest);
+        newProfile.getUser().setPassword(passwordEncoder.encode(registerRequest.password()));
         roleRepository.findByName(RoleConstants.USER).
-                ifPresentOrElse(userRole -> newUser.getRoles().add(userRole),
+                ifPresentOrElse(userRole -> newProfile.getUser().getRoles().add(userRole),
                         () -> {throw new NotFoundException(MessageConstants.ROLE_NOT_FOUNT);});
 
-        final var newProfile = registerMapper.mapProfile(registerRequest);
-        newProfile.setUser(newUser);
-
-        final var bodyObject = profileRepository.save(newProfile);
-
-        return new ResponseEntity<>(bodyObject, HttpStatus.CREATED);
+        profileRepository.save(newProfile);
     }
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
@@ -85,11 +79,5 @@ public class AuthServiceImpl implements AuthService {
         if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
             throw new UnauthorizedException(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
         }
-    }
-
-    private void isUserNameTaken(String username) {
-        userRepository.findByUsername(username).ifPresent(
-                user -> {throw new UserAlreadyExistsException(MessageConstants.USER_ALREADY_EXISTS);}
-        );
     }
 }
