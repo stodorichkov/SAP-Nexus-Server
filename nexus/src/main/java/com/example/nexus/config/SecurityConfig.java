@@ -1,7 +1,6 @@
 package com.example.nexus.config;
 
 import com.example.nexus.constant.RequestMappingConstants;
-import com.example.nexus.constant.RoleConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +22,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(RequestMappingConstants.AUTH).permitAll()
-                        .requestMatchers(RequestMappingConstants.ADMIN).hasRole(RoleConstants.ADMIN)
+                        .requestMatchers(RequestMappingConstants.ADMIN).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
