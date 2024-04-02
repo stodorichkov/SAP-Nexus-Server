@@ -12,13 +12,13 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void seedRole(String name) {
-       if(this.roleRepository.findByName(name).isPresent()) {
-           return;
-       }
+        if(this.roleRepository.findByName(name).isPresent()) {
+            return;
+        }
 
-       final var role = new Role();
-       role.setName(name);
+        final var role = new Role();
+        role.setName(name);
 
-       this.roleRepository.save(role);
+        this.roleRepository.save(role);
     }
 }
