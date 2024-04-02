@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
         final var encodedRealPassword = user.getPassword();
+
         if (!this.passwordEncoder.matches(request.password(), encodedRealPassword)) {
             throw new UnauthorizedException(MessageConstants.INVALID_USERNAME_PASSWORD);
         }
