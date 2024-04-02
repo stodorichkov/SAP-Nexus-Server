@@ -1,5 +1,8 @@
 package com.example.nexus.service;
 
+import com.example.nexus.constant.MessageConstants;
+import com.example.nexus.constant.RoleConstants;
+import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
 import com.example.nexus.mapper.RegisterMapper;
 import com.example.nexus.model.entity.Profile;
@@ -31,13 +34,14 @@ public class RegisterServiceImpl implements RegisterService{
     public Profile registerUser(RegisterRequest registerRequest) {
 
         if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
-            throw new UnauthorizedException("Repeated password doesn't match original.");
+            throw new UnauthorizedException(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
         }
 
         var newUser = registerMapper.mapUser(registerRequest);
         newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
-        roleRepository.findByName("User").
-                ifPresent(userRole -> newUser.getRoles().add(userRole));
+        roleRepository.findByName(RoleConstants.USER).
+                ifPresentOrElse(userRole -> newUser.getRoles().add(userRole),
+                        () -> new NotFoundException(MessageConstants.ROLE_NOT_FOUNT));
         userRepository.save(newUser);
 
         var newProfile = registerMapper.mapProfile(registerRequest);
