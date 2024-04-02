@@ -1,5 +1,6 @@
 package com.example.nexus.controller;
 
+import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
@@ -34,9 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        var bodyContent = authService.registerUser(registerRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(bodyContent);
+    ResponseEntity<Profile> register(@RequestBody RegisterRequest registerRequest) {
+        return authService.registerUser(registerRequest);
     }
 }

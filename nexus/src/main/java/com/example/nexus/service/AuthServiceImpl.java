@@ -15,6 +15,8 @@ import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
 import com.example.nexus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,21 +52,23 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Profile registerUser(RegisterRequest registerRequest) {
+    public ResponseEntity<Profile> registerUser(RegisterRequest registerRequest) {
 
         validateRequestedPassword(registerRequest);
 
-        var newUser = registerMapper.mapUser(registerRequest);
+        final var newUser = registerMapper.mapUser(registerRequest);
         isUserNameTaken(newUser.getUsername());
         newUser.setPassword(passwordEncoder.encode(registerRequest.password()));
         roleRepository.findByName(RoleConstants.USER).
                 ifPresentOrElse(userRole -> newUser.getRoles().add(userRole),
                         () -> {throw new NotFoundException(MessageConstants.ROLE_NOT_FOUNT);});
 
-        var newProfile = registerMapper.mapProfile(registerRequest);
+        final var newProfile = registerMapper.mapProfile(registerRequest);
         newProfile.setUser(newUser);
 
-        return profileRepository.save(newProfile);
+        final var bodyObject = profileRepository.save(newProfile);
+
+        return new ResponseEntity<>(bodyObject, HttpStatus.CREATED);
     }
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
