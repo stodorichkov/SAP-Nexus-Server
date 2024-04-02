@@ -1,6 +1,7 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
+import com.example.nexus.constant.RegexConstants;
 import com.example.nexus.constant.RoleConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
@@ -30,9 +31,12 @@ public class RegisterServiceImpl implements RegisterService{
     private final RegisterMapper registerMapper;
 
     @Override
-    @Transactional
     public Profile registerUser(RegisterRequest registerRequest) {
 
+        if (!registerRequest.password().matches(RegexConstants.PASSWORD_REQUIREMENT_REGEX)) {
+            throw new UnauthorizedException(MessageConstants.WRONG_PASSWORD_FORMAT);
+
+        }
         if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
             throw new UnauthorizedException(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
         }
@@ -42,7 +46,6 @@ public class RegisterServiceImpl implements RegisterService{
         roleRepository.findByName(RoleConstants.USER).
                 ifPresentOrElse(userRole -> newUser.getRoles().add(userRole),
                         () -> new NotFoundException(MessageConstants.ROLE_NOT_FOUNT));
-        userRepository.save(newUser);
 
         var newProfile = registerMapper.mapProfile(registerRequest);
         newProfile.setUser(newUser);
