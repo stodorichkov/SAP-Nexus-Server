@@ -1,6 +1,5 @@
 package com.example.nexus.controller;
 
-import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
