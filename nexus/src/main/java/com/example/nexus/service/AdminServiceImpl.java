@@ -17,6 +17,7 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public Page<UserResponse> getUsers(int pageNumber) {
         final var pageable = PageRequest.of(pageNumber, PageConstants.USER_PAGE_SIZE);
+
         return this.profileRepository
                 .findAll(pageable)
                 .map(this.userMapper::map);
