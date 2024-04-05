@@ -4,7 +4,7 @@ import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.RoleMapper;
 import com.example.nexus.repository.UserRepository;
-import lombok.RequiredArgsConstructor;;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
