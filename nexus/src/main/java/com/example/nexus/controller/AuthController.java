@@ -1,6 +1,7 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.AuthenticationRequest;
+import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -25,5 +26,12 @@ public class AuthController {
                 .status(HttpStatus.CREATED)
                 .headers(headers)
                 .build();
+    }
+
+    @PostMapping("/registration")
+    ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        authService.registerUser(registerRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
