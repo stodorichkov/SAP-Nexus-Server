@@ -5,7 +5,6 @@ import com.example.nexus.constant.RegexConstants;
 import com.example.nexus.constant.RoleConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
-import com.example.nexus.mapper.RoleMapper;
 import com.example.nexus.exception.UserAlreadyExistsException;
 import com.example.nexus.mapper.RegisterMapper;
 import com.example.nexus.model.entity.User;
@@ -28,7 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final RoleMapper roleMapper;
     private final ProfileRepository profileRepository;
     private final RoleRepository roleRepository;
     private final RegisterMapper registerMapper;
