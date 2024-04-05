@@ -2,6 +2,7 @@ package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.UnauthorizedException;
+import com.example.nexus.mapper.RoleMapper;
 import com.example.nexus.model.entity.User;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.repository.UserRepository;
@@ -18,6 +19,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final RoleMapper roleMapper;
 
     @Override
     public String login(AuthenticationRequest request) {
@@ -34,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "token";
+        return this.jwtService.generateToken(authentication);
     }
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
