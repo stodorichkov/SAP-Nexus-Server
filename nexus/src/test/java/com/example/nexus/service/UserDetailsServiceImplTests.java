@@ -52,12 +52,12 @@ public class UserDetailsServiceImplTests {
     }
 
     @Test
-    void loadUserByUsername_userNotExist_expectNotFound() {
+    void loadUserByUsername_userNotExist_expectNotFoundException() {
         assertThrows(NotFoundException.class, () -> this.userDetailsService.loadUserByUsername(username));
     }
 
     @Test
-    void loadUserByUsername_userExist_loadUser() {
+    void loadUserByUsername_userExist_expectLoadUser() {
         when(this.userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(this.roleMapper.map(role)).thenReturn(authority);
 

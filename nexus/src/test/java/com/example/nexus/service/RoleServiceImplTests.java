@@ -29,7 +29,7 @@ public class RoleServiceImplTests {
     }
 
     @Test
-    void seedRole_roleNotExist_shouldSave() {
+    void seedRole_roleNotExist_expectSave() {
         this.roleService.seedRole(roleName);
 
         verify(this.roleRepository, times(1))
@@ -37,7 +37,7 @@ public class RoleServiceImplTests {
     }
 
     @Test
-    void seedRole_roleAlreadyExist_shouldNotSave() {
+    void seedRole_roleAlreadyExist_expectNotSave() {
         when(roleRepository.findByName(roleName)).thenReturn(Optional.of(new Role()));
 
         this.roleService.seedRole(roleName);

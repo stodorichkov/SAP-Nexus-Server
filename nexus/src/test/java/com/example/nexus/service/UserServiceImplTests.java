@@ -55,7 +55,7 @@ public class UserServiceImplTests {
     }
 
     @Test
-    void seedAdmin_userAlreadyExists_shouldNotSave() {
+    void seedAdmin_userAlreadyExists_expectNotSave() {
         when(this.userRepository.findByUsername(AdminConstants.USERNAME)).thenReturn(Optional.of(new User()));
 
         this.userService.seedAdmin();
@@ -65,7 +65,7 @@ public class UserServiceImplTests {
     }
 
     @Test
-    void seedAdmin_userNotExists_shouldSave() {
+    void seedAdmin_userNotExists_expectSave() {
         when(this.roleRepository.findAll()).thenReturn(roles);
         when(this.passwordEncoder.encode(AdminConstants.PASSWORD)).thenReturn(passwordHash);
 
