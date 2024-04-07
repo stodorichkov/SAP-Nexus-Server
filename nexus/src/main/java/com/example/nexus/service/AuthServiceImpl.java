@@ -26,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final ProfileRepository profileRepository;
     private final RoleRepository roleRepository;
     private final RegisterMapper registerMapper;
@@ -45,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "token";
+        return this.jwtService.generateToken(authentication);
     }
 
     @Override
@@ -67,7 +68,8 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
         final var encodedRealPassword = user.getPassword();
-        if (!this.passwordEncoder.matches(request.password(), encodedRealPassword)) {
+
+        if(!this.passwordEncoder.matches(request.password(), encodedRealPassword)) {
             throw new UnauthorizedException(MessageConstants.INVALID_USERNAME_PASSWORD);
         }
     }
