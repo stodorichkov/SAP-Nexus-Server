@@ -29,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +39,7 @@ public class AuthServiceImplTests {
     private static RegisterRequest registerRequest;
     private static Profile profile;
     private static Role role;
-    private static AuthenticationRequest request;
+    private static AuthenticationRequest authRequest;
     private static User user;
     private static String token;
 
@@ -65,17 +63,20 @@ public class AuthServiceImplTests {
     @BeforeAll
     static void setUp() {
         passwordHash = "hashedPassword";
+        token = "token";
 
         registerRequest = new RegisterRequest("Petar", "Georgiev", "petar_g",
                 "123456aA", "123456aA");
+        authRequest = new AuthenticationRequest("petar_g", passwordHash);
 
         role = new Role();
         role.setName("USER");
 
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setUsername("petar_g");
-        user.setRoles(new ArrayList<>());
+        user.setPassword(passwordHash);
+        user.getRoles().add(role);
 
         profile = new Profile();
         profile.setId(1L);
@@ -201,46 +202,30 @@ public class AuthServiceImplTests {
                 () -> assertEquals("Georgiev", newProfile.getLastName()),
                 () -> assertEquals(0.0f, newProfile.getBalance())
         );
-        final var username = "username";
-        final var passwordHash = "hashedPassword";
-        final var role = new Role();
-
-        request = new AuthenticationRequest(username, passwordHash);
-
-        role.setId(1L);
-        role.setName("USER");
-
-        user = new User();
-        user.setId(1L);
-        user.setUsername(username);
-        user.setPassword(passwordHash);
-        user.getRoles().add(role);
-
-        token = "token";
     }
 
     @Test
     void login_userNotExist_expectUnauthorizedException() {
-        assertThrows(UnauthorizedException.class, () -> this.authService.login(request));
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(authRequest));
     }
 
     @Test
     void login_invalidPassword_expectUnauthorizedException() {
-        when(this.userRepository.findByUsername(request.username())).thenReturn(Optional.of(new User()));
+        when(this.userRepository.findByUsername(authRequest.username())).thenReturn(Optional.of(new User()));
 
-        assertThrows(UnauthorizedException.class, () -> this.authService.login(request));
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(authRequest));
     }
 
     @Test
     void login_userExist_expectToken() {
-        when(this.userRepository.findByUsername(request.username())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
-        when(jwtService.generateToken(any())).thenReturn(token);
+        when(this.userRepository.findByUsername(authRequest.username())).thenReturn(Optional.of(user));
+        when(this.passwordEncoder.matches(authRequest.password(), user.getPassword())).thenReturn(true);
+        when(this.jwtService.generateToken(any())).thenReturn(token);
 
-        final var result = this.authService.login(request);
+        final var result = this.authService.login(authRequest);
 
         verify(authenticationManager)
-                .authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+                .authenticate(new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
         assertEquals(token, result);
     }
 }
