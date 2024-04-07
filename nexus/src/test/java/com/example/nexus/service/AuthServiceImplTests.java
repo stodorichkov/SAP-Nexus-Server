@@ -21,30 +21,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.util.ArrayList;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceImplTests {
-    private static String username;
-    private static String existingUsername;
-    private static String correctPassword;
-    private static String incorrectLengthPassword;
-    private static String noNumbersPassword;
-    private static String noUpperCaseLettersPassword;
-    private static String noLowerCaseLettersPassword;
-    private static String incorrectRepeatedPassword;
-    private static String firstName;
-    private static String lastName;
     private static String passwordHash;
     private static RegisterRequest registerRequest;
     private static Profile profile;
     private static Role role;
+    
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -60,36 +49,29 @@ public class AuthServiceImplTests {
 
     @BeforeAll
     static void setUp() {
-        username = "petar_g";
-        existingUsername = "ivan.m_22";
-        correctPassword = "123456aA";
-        incorrectLengthPassword = "12345aA";
-        noNumbersPassword = "abcdABDC";
-        noLowerCaseLettersPassword = "ABCD1234";
-        noUpperCaseLettersPassword = "abcd1234";
-        incorrectRepeatedPassword = "123456aB";
-        firstName = "Petar";
-        lastName = "Georgiev";
         passwordHash = "hashedPassword";
+
+        registerRequest = new RegisterRequest("Petar", "Georgiev", "petar_g",
+                "123456aA", "123456aA");
+
         role = new Role();
         role.setName("USER");
+
         User user = new User();
         user.setId(1L);
-        user.setUsername(username);
+        user.setUsername("petar_g");
         user.setRoles(new ArrayList<>());
+
         profile = new Profile();
         profile.setId(1L);
-        profile.setFirstName(firstName);
-        profile.setLastName(lastName);
+        profile.setFirstName("Petar");
+        profile.setLastName("Georgiev");
         profile.setBalance(0.0f);
         profile.setUser(user);
     }
     @Test
-    void registerUser_userAlreadyExists_throwException() {
-        registerRequest = new RegisterRequest(firstName, lastName, existingUsername,
-                correctPassword, correctPassword);
-        when(userRepository.findByUsername(existingUsername)).thenReturn(Optional.of(new User()));
-
+    void registerUser_userAlreadyExists_expectUserAlreadyExistsException() {
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.of(new User()));
 
         assertThatExceptionOfType(UserAlreadyExistsException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
@@ -100,79 +82,76 @@ public class AuthServiceImplTests {
 
     //will also show that incorrect format is of higher priority than incorrect repeated password
     @Test
-    void registerUser_incorrectLengthPassword_throwsException() {
+    void registerUser_incorrectLengthPassword_expectUnauthorizedException() {
         //incorrect password format, as well as incorrect repeated password
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                incorrectLengthPassword, correctPassword);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        RegisterRequest wrongPasswordLengthRequest = new RegisterRequest("Petar", "Georgiev",
+                "petar_g", "12345aA", "123456aA");
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(registerRequest)).
+                isThrownBy(() -> this.authService.registerUser(wrongPasswordLengthRequest)).
                 withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
 
         verify(this.profileRepository, never()).save(any());
     }
 
     @Test
-    void registerUser_noNumbersPassword_throwsException() {
+    void registerUser_noNumbersPassword_expectUnauthorizedException() {
         //incorrect password format, as well as incorrect repeated password
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                noNumbersPassword, correctPassword);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        RegisterRequest noNumbersPasswordRequest = new RegisterRequest("Petar", "Georgiev",
+                "petar_g", "abcdABDC", "123456aA");
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(registerRequest)).
+                isThrownBy(() -> this.authService.registerUser(noNumbersPasswordRequest)).
                 withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
 
         verify(this.profileRepository, never()).save(any());
     }
 
     @Test
-    void registerUser_noUpperCaseLetterPassword_throwsException() {
+    void registerUser_noUpperCaseLetterPassword_expectUnauthorizedException() {
         //incorrect password format, as well as incorrect repeated password
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                noUpperCaseLettersPassword, correctPassword);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        RegisterRequest noUpperCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
+                "petar_g", "abcd1234", "123456aA");
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(registerRequest)).
+                isThrownBy(() -> this.authService.registerUser(noUpperCaseLetterPasswordRequest)).
                 withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
 
         verify(this.profileRepository, never()).save(any());
     }
 
     @Test
-    void registerUser_noLowerCaseLetter_throwsException() {
+    void registerUser_noLowerCaseLetter_expectUnauthorizedException() {
         //incorrect password format, as well as incorrect repeated password
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                noLowerCaseLettersPassword, correctPassword);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        RegisterRequest noLowerCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
+                "petar_g", "ABCD1234", "123456aA");
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(registerRequest)).
+                isThrownBy(() -> this.authService.registerUser(noLowerCaseLetterPasswordRequest)).
                 withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
 
         verify(this.profileRepository, never()).save(any());
     }
 
     @Test
-    void registerUser_incorrectRepeatedPassword_throwsException() {
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                correctPassword, incorrectRepeatedPassword);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+    void registerUser_incorrectRepeatedPassword_expectUnauthorizedException() {
+        RegisterRequest incorrectRepeatedPasswordRequest = new RegisterRequest("Petar", "Georgiev",
+                "petar_g", "123456aA", "123456aB");
+        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(registerRequest)).
+                isThrownBy(() -> this.authService.registerUser(incorrectRepeatedPasswordRequest)).
                 withMessage(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
 
         verify(this.profileRepository, never()).save(any());
     }
 
     @Test
-    void registerUser_noRoleInDatabase_throwException() {
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                correctPassword, correctPassword);
-
+    void registerUser_noRoleInDatabase_expectNotFoundException() {
         when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
@@ -186,9 +165,6 @@ public class AuthServiceImplTests {
     
     @Test
     void registerUser_everythingIsCorrect_shouldSaveNewProfile() {
-        registerRequest = new RegisterRequest(firstName, lastName, username,
-                correctPassword, correctPassword);
-
         when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(roleRepository.findByName(RoleConstants.USER)).
@@ -200,14 +176,12 @@ public class AuthServiceImplTests {
         verify(this.profileRepository).save(profileCaptor.capture());
         final var newProfile = profileCaptor.getValue();
 
-        System.out.println(newProfile.getUser().getRoles());
-
         assertAll(
-                () -> assertEquals(username, newProfile.getUser().getUsername()),
+                () -> assertEquals("petar_g", newProfile.getUser().getUsername()),
                 () -> assertEquals(passwordHash, newProfile.getUser().getPassword()),
                 () -> assertEquals(RoleConstants.USER, newProfile.getUser().getRoles().get(0).getName()),
-                () -> assertEquals(firstName, newProfile.getFirstName()),
-                () -> assertEquals(lastName, newProfile.getLastName()),
+                () -> assertEquals("Petar", newProfile.getFirstName()),
+                () -> assertEquals("Georgiev", newProfile.getLastName()),
                 () -> assertEquals(0.0f, newProfile.getBalance())
         );
     }
