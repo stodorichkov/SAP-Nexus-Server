@@ -12,6 +12,7 @@ import com.example.nexus.model.entity.User;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
+import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceImplTests {
@@ -33,7 +41,10 @@ public class AuthServiceImplTests {
     private static RegisterRequest registerRequest;
     private static Profile profile;
     private static Role role;
-    
+    private static AuthenticationRequest request;
+    private static User user;
+    private static String token;
+
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -44,6 +55,10 @@ public class AuthServiceImplTests {
     private RoleRepository roleRepository;
     @Mock
     private RegisterMapper registerMapper;
+    @Mock
+    private JwtService jwtService;
+    @Mock
+    private AuthenticationManager authenticationManager;
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -156,14 +171,14 @@ public class AuthServiceImplTests {
         when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
-        
+
         assertThatExceptionOfType(NotFoundException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
                 withMessage(MessageConstants.ROLE_NOT_FOUNT);
-        
+
         verify(this.profileRepository, never()).save(any());
     }
-    
+
     @Test
     void registerUser_everythingIsCorrect_shouldSaveNewProfile() {
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
@@ -186,5 +201,46 @@ public class AuthServiceImplTests {
                 () -> assertEquals("Georgiev", newProfile.getLastName()),
                 () -> assertEquals(0.0f, newProfile.getBalance())
         );
+        final var username = "username";
+        final var passwordHash = "hashedPassword";
+        final var role = new Role();
+
+        request = new AuthenticationRequest(username, passwordHash);
+
+        role.setId(1L);
+        role.setName("USER");
+
+        user = new User();
+        user.setId(1L);
+        user.setUsername(username);
+        user.setPassword(passwordHash);
+        user.getRoles().add(role);
+
+        token = "token";
+    }
+
+    @Test
+    void login_userNotExist_expectUnauthorizedException() {
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(request));
+    }
+
+    @Test
+    void login_invalidPassword_expectUnauthorizedException() {
+        when(this.userRepository.findByUsername(request.username())).thenReturn(Optional.of(new User()));
+
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(request));
+    }
+
+    @Test
+    void login_userExist_expectToken() {
+        when(this.userRepository.findByUsername(request.username())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
+        when(jwtService.generateToken(any())).thenReturn(token);
+
+        final var result = this.authService.login(request);
+
+        verify(authenticationManager)
+                .authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+        assertEquals(token, result);
     }
 }
