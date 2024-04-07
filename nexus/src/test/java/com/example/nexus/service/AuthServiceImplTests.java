@@ -12,6 +12,7 @@ import com.example.nexus.model.entity.User;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
+import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,11 +22,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.ArrayList;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceImplTests {
@@ -33,6 +38,10 @@ public class AuthServiceImplTests {
     private static RegisterRequest registerRequest;
     private static Profile profile;
     private static Role role;
+    private static AuthenticationRequest authRequest;
+    private static User user;
+    private static String token;
+
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -43,22 +52,30 @@ public class AuthServiceImplTests {
     private RoleRepository roleRepository;
     @Mock
     private RegisterMapper registerMapper;
+    @Mock
+    private JwtService jwtService;
+    @Mock
+    private AuthenticationManager authenticationManager;
     @InjectMocks
     private AuthServiceImpl authService;
+
     @BeforeAll
     static void setUp() {
-        registerRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "123456aA", "123456aA");
-
         passwordHash = "hashedPassword";
+        token = "token";
+
+        registerRequest = new RegisterRequest("Petar", "Georgiev", "petar_g",
+                "123456aA", "123456aA");
+        authRequest = new AuthenticationRequest("petar_g", passwordHash);
 
         role = new Role();
         role.setName("USER");
 
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setUsername("petar_g");
-        user.setRoles(new ArrayList<>());
+        user.setPassword(passwordHash);
+        user.getRoles().add(role);
 
         profile = new Profile();
         profile.setId(1L);
@@ -82,13 +99,12 @@ public class AuthServiceImplTests {
     @Test
     void registerUser_incorrectLengthPassword_expectUnauthorizedException() {
         //incorrect password format, as well as incorrect repeated password
-        RegisterRequest incorrectLengthPasswordRequest = new RegisterRequest("Petar", "Georgiev",
+        RegisterRequest wrongPasswordLengthRequest = new RegisterRequest("Petar", "Georgiev",
                 "petar_g", "12345aA", "123456aA");
-
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(incorrectLengthPasswordRequest)).
+                isThrownBy(() -> this.authService.registerUser(wrongPasswordLengthRequest)).
                 withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
 
         verify(this.profileRepository, never()).save(any());
@@ -99,7 +115,6 @@ public class AuthServiceImplTests {
         //incorrect password format, as well as incorrect repeated password
         RegisterRequest noNumbersPasswordRequest = new RegisterRequest("Petar", "Georgiev",
                 "petar_g", "abcdABDC", "123456aA");
-
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
@@ -114,7 +129,6 @@ public class AuthServiceImplTests {
         //incorrect password format, as well as incorrect repeated password
         RegisterRequest noUpperCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
                 "petar_g", "abcd1234", "123456aA");
-
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
@@ -129,7 +143,6 @@ public class AuthServiceImplTests {
         //incorrect password format, as well as incorrect repeated password
         RegisterRequest noLowerCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
                 "petar_g", "ABCD1234", "123456aA");
-
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
@@ -143,7 +156,6 @@ public class AuthServiceImplTests {
     void registerUser_incorrectRepeatedPassword_expectUnauthorizedException() {
         RegisterRequest incorrectRepeatedPasswordRequest = new RegisterRequest("Petar", "Georgiev",
                 "petar_g", "123456aA", "123456aB");
-
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(UnauthorizedException.class).
@@ -173,15 +185,13 @@ public class AuthServiceImplTests {
         when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(roleRepository.findByName(RoleConstants.USER)).
-                thenReturn(Optional.of(role));
+        thenReturn(Optional.of(role));
 
         this.authService.registerUser(registerRequest);
 
         final var profileCaptor = ArgumentCaptor.forClass(Profile.class);
         verify(this.profileRepository).save(profileCaptor.capture());
         final var newProfile = profileCaptor.getValue();
-
-        System.out.println(newProfile.getUser().getRoles());
 
         assertAll(
                 () -> assertEquals("petar_g", newProfile.getUser().getUsername()),
@@ -191,5 +201,30 @@ public class AuthServiceImplTests {
                 () -> assertEquals("Georgiev", newProfile.getLastName()),
                 () -> assertEquals(0.0f, newProfile.getBalance())
         );
+    }
+
+    @Test
+    void login_userNotExist_expectUnauthorizedException() {
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(authRequest));
+    }
+
+    @Test
+    void login_invalidPassword_expectUnauthorizedException() {
+        when(this.userRepository.findByUsername(authRequest.username())).thenReturn(Optional.of(new User()));
+
+        assertThrows(UnauthorizedException.class, () -> this.authService.login(authRequest));
+    }
+
+    @Test
+    void login_userExist_expectToken() {
+        when(this.userRepository.findByUsername(authRequest.username())).thenReturn(Optional.of(user));
+        when(this.passwordEncoder.matches(authRequest.password(), user.getPassword())).thenReturn(true);
+        when(this.jwtService.generateToken(any())).thenReturn(token);
+
+        final var result = this.authService.login(authRequest);
+
+        verify(authenticationManager)
+                .authenticate(new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
+        assertEquals(token, result);
     }
 }
