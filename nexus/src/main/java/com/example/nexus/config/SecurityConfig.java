@@ -2,7 +2,6 @@ package com.example.nexus.config;
 
 import com.example.nexus.constant.RequestMappingConstants;
 import com.example.nexus.constant.RoleConstants;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,6 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-
     }
 
     @Bean

@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
