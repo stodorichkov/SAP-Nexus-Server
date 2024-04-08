@@ -9,5 +9,5 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RoleMapper {
     @Mapping(target = "role", source = "name")
-    SimpleGrantedAuthority mapToSimpleGrantedAuthority(Role entity);
+    SimpleGrantedAuthority map(Role entity);
 }
