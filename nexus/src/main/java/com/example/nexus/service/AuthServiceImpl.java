@@ -50,23 +50,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void registerUser(RegisterRequest registerRequest) {
-        if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
+        if (this.userRepository.findByUsername(registerRequest.username()).isPresent()) {
             throw new UserAlreadyExistsException(MessageConstants.USER_EXISTS);
         }
 
-        final var newProfile = registerMapper.mapProfile(registerRequest);
-        newProfile.getUser().setPassword(passwordEncoder.encode(registerRequest.password()));
-        roleRepository.findByName(RoleConstants.USER).
-                ifPresentOrElse(userRole -> newProfile.getUser().getRoles().add(userRole),
-                        () -> {throw new NotFoundException(MessageConstants.ROLE_NOT_FOUNT);});
+        final var newProfile = this.registerMapper.mapProfile(registerRequest);
+        newProfile.getUser().setPassword(this.passwordEncoder.encode(registerRequest.password()));
+        final var role = this.roleRepository
+                .findByName(RoleConstants.USER)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.ROLE_NOT_FOUNT));
+        newProfile.getUser().getRoles().add(role);
 
         profileRepository.save(newProfile);
     }
 
     private void validateUserPassword(User user, AuthenticationRequest request) {
-        final var encodedRealPassword = user.getPassword();
-
-        if(!this.passwordEncoder.matches(request.password(), encodedRealPassword)) {
+        if(!this.passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new UnauthorizedException(MessageConstants.INVALID_USERNAME_PASSWORD);
         }
     }

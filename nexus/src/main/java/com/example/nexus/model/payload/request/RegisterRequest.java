@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record RegisterRequest(
-        @Pattern(regexp = RegexConstants.NAME_REGEX, message = MessageConstants.INVALID_FORMAT_FOR_FIRST_NAME)
+        @Pattern(regexp = RegexConstants.NAME_REGEX, message = MessageConstants.INVALID_FIRST_NAME)
         String firstName,
 
-        @Pattern(regexp = RegexConstants.NAME_REGEX, message = MessageConstants.INVALID_FORMAT_FOR_LAST_NAME)
+        @Pattern(regexp = RegexConstants.NAME_REGEX, message = MessageConstants.INVALID_LAST_NAME)
         String lastName,
 
         @Pattern(regexp = RegexConstants.USERNAME_REGEX, message = MessageConstants.INVALID_USERNAME)

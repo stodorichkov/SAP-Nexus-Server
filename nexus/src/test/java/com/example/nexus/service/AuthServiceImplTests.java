@@ -86,7 +86,7 @@ public class AuthServiceImplTests {
     }
     @Test
     void registerUser_userAlreadyExists_expectUserAlreadyExistsException() {
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.of(new User()));
+        when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.of(new User()));
 
         assertThatExceptionOfType(UserAlreadyExistsException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
@@ -97,10 +97,10 @@ public class AuthServiceImplTests {
 
     @Test
     void registerUser_noRoleInDatabase_expectNotFoundException() {
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
-        when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
-        when(roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
+        when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
+        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
+        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
+        when(this.roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(NotFoundException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
@@ -111,10 +111,10 @@ public class AuthServiceImplTests {
 
     @Test
     void registerUser_everythingIsCorrect_expectSaveNewProfile() {
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
-        when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
-        when(roleRepository.findByName(RoleConstants.USER)).
+        when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
+        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
+        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
+        when(this.roleRepository.findByName(RoleConstants.USER)).
         thenReturn(Optional.of(role));
 
         this.authService.registerUser(registerRequest);
@@ -153,7 +153,7 @@ public class AuthServiceImplTests {
 
         final var result = this.authService.login(authRequest);
 
-        verify(authenticationManager)
+        verify(this.authenticationManager)
                 .authenticate(new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
         assertEquals(token, result);
     }

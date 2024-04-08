@@ -1,34 +1,35 @@
 package com.example.nexus.model.payload.request;
+
 import com.example.nexus.constant.MessageConstants;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.example.nexus.constant.RegexConstants;
+import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public record ProductRequest(
-//        @Pattern()
+        @Pattern(regexp = RegexConstants.PRODUCT_NAME_REGEX, message = MessageConstants.INVALID_PRODUCT_NAME)
         String name,
-        @NotBlank
+
+        @Pattern(regexp = RegexConstants.PRODUCT_BRAND_REGEX, message = MessageConstants.INVALID_PRODUCT_BRAND)
         String brand,
-        @NotBlank
+
+        @NotBlank(message = MessageConstants.FIELD_CANNOT_BE_BLANK)
         String category,
+
         String description,
 
-        @PositiveOrZero
+        @PositiveOrZero(message = MessageConstants.INVALID_PRICE)
         Float price,
 
-        @PositiveOrZero
+        @PositiveOrZero(message = MessageConstants.INVALID_PRICE)
         Float minPrice,
 
-        @PositiveOrZero
+        @PositiveOrZero(message = MessageConstants.INVALID_AVAILABILITY)
         int availability,
 
         MultipartFile image
 ) {
-    @AssertTrue(message = MessageConstants.PASSWORD_MISMATCH)
+    @AssertTrue(message = MessageConstants.INVALID_MIN_PRICE)
     public boolean isPriceGreaterOrEqualToMinPrice() {
         return price >= minPrice;
     }
-
 }

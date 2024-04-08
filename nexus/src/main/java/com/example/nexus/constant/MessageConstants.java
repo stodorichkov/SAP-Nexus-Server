@@ -25,14 +25,26 @@ public class MessageConstants {
 
     // registration
     public static final String INVALID_USERNAME = "Invalid format for username. Must be at least 3 symbols long.";
-    public static final String INVALID_FORMAT_FOR_FIRST_NAME = "Invalid format for first name. Name must start with " +
+    public static final String INVALID_FIRST_NAME = "Invalid format for first name. Name must start with " +
             "capital letter and contain only characters.";
-    public static final String INVALID_FORMAT_FOR_LAST_NAME = "Invalid format for last name. Name must start with " +
+    public static final String INVALID_LAST_NAME = "Invalid format for last name. Name must start with " +
             "capital letter and contain only characters.";
-    public static final String INVALID_PASSWORD = "Password must be at least 8 characters long," +
-            " contain at least one digit, one uppercase letter and one lowercase letter!";
+    public static final String INVALID_PASSWORD = "Invalid format for password. Password must be at least 8 " +
+            "characters long, contain at least one digit, one uppercase letter and one lowercase letter!";
     public static final String PASSWORD_MISMATCH = "Repeated password doesn't match original!";
 
     // product
-    public static final String INVALID_PRICE = "Invalid price!";
+    public static final String INVALID_PRICE = "Invalid format for price. Price must be positive or zero!";
+    public static final String INVALID_MIN_PRICE = "Invalid format for price. Price must be greater than or equal " +
+            "to the min price!";
+    public static final String INVALID_PRODUCT_NAME = "Invalid format for product name. Name must be between 2 and" +
+            " 50 characters long and can contain only letters (both uppercase and lowercase), digits, and spaces!";
+    public static final String INVALID_PRODUCT_BRAND = "Invalid format for product brand. Product brand name must " +
+            "be between 2 and 30 characters long and can contain only letters (both uppercase and lowercase), " +
+            "digits, and spaces.";
+    public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
+            "positive or zero!";
+
+    // images
+    public static final String INVALID_FILENAME = "Invalid filename!";
 }
