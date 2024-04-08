@@ -90,77 +90,7 @@ public class AuthServiceImplTests {
 
         assertThatExceptionOfType(UserAlreadyExistsException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
-                withMessage(MessageConstants.USER_ALREADY_EXISTS);
-
-        verify(this.profileRepository, never()).save(any());
-    }
-
-    //will also show that incorrect format is of higher priority than incorrect repeated password
-    @Test
-    void registerUser_incorrectLengthPassword_expectUnauthorizedException() {
-        //incorrect password format, as well as incorrect repeated password
-        RegisterRequest wrongPasswordLengthRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "12345aA", "123456aA");
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(wrongPasswordLengthRequest)).
-                withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
-
-        verify(this.profileRepository, never()).save(any());
-    }
-
-    @Test
-    void registerUser_noNumbersPassword_expectUnauthorizedException() {
-        //incorrect password format, as well as incorrect repeated password
-        RegisterRequest noNumbersPasswordRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "abcdABDC", "123456aA");
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(noNumbersPasswordRequest)).
-                withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
-
-        verify(this.profileRepository, never()).save(any());
-    }
-
-    @Test
-    void registerUser_noUpperCaseLetterPassword_expectUnauthorizedException() {
-        //incorrect password format, as well as incorrect repeated password
-        RegisterRequest noUpperCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "abcd1234", "123456aA");
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(noUpperCaseLetterPasswordRequest)).
-                withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
-
-        verify(this.profileRepository, never()).save(any());
-    }
-
-    @Test
-    void registerUser_noLowerCaseLetter_expectUnauthorizedException() {
-        //incorrect password format, as well as incorrect repeated password
-        RegisterRequest noLowerCaseLetterPasswordRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "ABCD1234", "123456aA");
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(noLowerCaseLetterPasswordRequest)).
-                withMessage(MessageConstants.WRONG_PASSWORD_FORMAT);
-
-        verify(this.profileRepository, never()).save(any());
-    }
-
-    @Test
-    void registerUser_incorrectRepeatedPassword_expectUnauthorizedException() {
-        RegisterRequest incorrectRepeatedPasswordRequest = new RegisterRequest("Petar", "Georgiev",
-                "petar_g", "123456aA", "123456aB");
-        when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-
-        assertThatExceptionOfType(UnauthorizedException.class).
-                isThrownBy(() -> this.authService.registerUser(incorrectRepeatedPasswordRequest)).
-                withMessage(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
+                withMessage(MessageConstants.USER_EXISTS);
 
         verify(this.profileRepository, never()).save(any());
     }
@@ -180,7 +110,7 @@ public class AuthServiceImplTests {
     }
 
     @Test
-    void registerUser_everythingIsCorrect_shouldSaveNewProfile() {
+    void registerUser_everythingIsCorrect_expectSaveNewProfile() {
         when(userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
         when(registerMapper.mapProfile(registerRequest)).thenReturn(profile);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);

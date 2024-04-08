@@ -1,7 +1,6 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
-import com.example.nexus.constant.RegexConstants;
 import com.example.nexus.constant.RoleConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
@@ -32,16 +31,16 @@ public class AuthServiceImpl implements AuthService {
     private final RegisterMapper registerMapper;
 
     @Override
-    public String login(AuthenticationRequest request) {
+    public String login(AuthenticationRequest authenticationRequest) {
         final var user = this.userRepository
-                .findByUsername(request.username())
+                .findByUsername(authenticationRequest.username())
                 .orElseThrow(() -> new UnauthorizedException(MessageConstants.INVALID_USERNAME_PASSWORD));
-        validateUserPassword(user, request);
+        validateUserPassword(user, authenticationRequest);
 
         final var authentication = this.authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.username(),
-                        request.password()
+                        authenticationRequest.username(),
+                        authenticationRequest.password()
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -52,10 +51,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void registerUser(RegisterRequest registerRequest) {
         if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
-            throw new UserAlreadyExistsException(MessageConstants.USER_ALREADY_EXISTS);
+            throw new UserAlreadyExistsException(MessageConstants.USER_EXISTS);
         }
-
-        validateRequestedPassword(registerRequest);
 
         final var newProfile = registerMapper.mapProfile(registerRequest);
         newProfile.getUser().setPassword(passwordEncoder.encode(registerRequest.password()));
@@ -71,15 +68,6 @@ public class AuthServiceImpl implements AuthService {
 
         if(!this.passwordEncoder.matches(request.password(), encodedRealPassword)) {
             throw new UnauthorizedException(MessageConstants.INVALID_USERNAME_PASSWORD);
-        }
-    }
-
-    private void validateRequestedPassword(RegisterRequest registerRequest) {
-        if (!registerRequest.password().matches(RegexConstants.PASSWORD_REQUIREMENT_REGEX)) {
-            throw new UnauthorizedException(MessageConstants.WRONG_PASSWORD_FORMAT);
-        }
-        if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
-            throw new UnauthorizedException(MessageConstants.CONFIRM_PASSWORD_NOT_MATCHING);
         }
     }
 }
