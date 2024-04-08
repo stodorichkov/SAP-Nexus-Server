@@ -19,16 +19,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<String> handle(UnauthorizedException ex) {
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<String> handle(UserAlreadyExistsException ex) {
         log.error(ex.getMessage());
         log.info(ex.getMessage(), ex);
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<String> handle(AuthenticationException ex) {
+    @ExceptionHandler({UnauthorizedException.class, AuthenticationException.class})
+    public ResponseEntity<String> handle(UnauthorizedException ex) {
         log.error(ex.getMessage());
         log.info(ex.getMessage(), ex);
 

@@ -2,15 +2,20 @@ package com.example.nexus.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDate;
+import java.util.List;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "campaigns")
 @Data
-public class Role {
+public class Campaign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String name;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 }

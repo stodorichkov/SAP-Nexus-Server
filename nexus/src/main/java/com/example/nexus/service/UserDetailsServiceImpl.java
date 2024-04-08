@@ -19,16 +19,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       final var user = this.userRepository
-               .findByUsername(username)
-               .orElseThrow(() -> new NotFoundException(MessageConstants.USER_NOT_FOUND));
+        final var user = this.userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.USER_NOT_FOUND));
 
-       final var authorities = user
-               .getRoles()
-               .stream()
-               .map(roleMapper::mapToSimpleGrantedAuthority)
-               .toList();
+        final var authorities = user
+                .getRoles()
+                .stream()
+                .map(roleMapper::map)
+                .toList();
 
-       return new User(user.getUsername(), user.getPassword(), authorities);
+        return new User(user.getUsername(), user.getPassword(), authorities);
     }
 }

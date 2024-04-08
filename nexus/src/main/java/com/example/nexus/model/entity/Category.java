@@ -2,15 +2,15 @@ package com.example.nexus.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.List;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "categories")
 @Data
-public class Role {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String name;
 }
