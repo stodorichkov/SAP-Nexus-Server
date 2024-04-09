@@ -1,6 +1,5 @@
 package com.example.nexus.controller;
 
-<<<<<<< HEAD
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.service.CategoryService;
 import com.example.nexus.service.ProductService;
@@ -12,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.nexus.model.payload.response.UserResponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/admin")
@@ -21,11 +21,10 @@ public class AdminController {
     private final CategoryService categoryService;
     private final UserService userService;
 
-    @GetMapping("/user")
+    @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public Page<UserResponse> getUsers(@RequestParam int pageNumber) {
-        return this.userService
-                .getUsers(pageNumber);
+        return this.userService.getUsers(pageNumber);
     }
 
     @PostMapping("/product")

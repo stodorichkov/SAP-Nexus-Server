@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceImplTests {
     private static String passwordHash;
     private static List<Role> roles;
-    private static Page<Profile> page;
+    private static Page<User> page;
     private static UserResponse userResponse;
 
     @Mock
@@ -59,10 +59,11 @@ public class UserServiceImplTests {
         role.setName("ADMIN");
         roles.add(role);
 
-        final var profiles = List.of(new Profile(), new Profile(), new Profile());
-        page = new PageImpl<>(profiles);
+        final var users = List.of(new User(), new User(), new User());
+        page = new PageImpl<>(users);
 
-        userResponse = new UserResponse("stodorichkov123", "Stelian", "Todorichkov", roles);
+        userResponse = new UserResponse(
+                "stodorichkov123", roles.stream().map(Role::getName).toList());
     }
 
     @Test
@@ -97,8 +98,8 @@ public class UserServiceImplTests {
 
     @Test
     public void getUsers_expectPage() {
-        when(this.profileRepository.findAll(any(Pageable.class))).thenReturn(page);
-        when(this.userMapper.map(any(Profile.class))).thenReturn(userResponse);
+        when(this.userRepository.findAll(any(Pageable.class))).thenReturn(page);
+        when(this.userMapper.map(any(User.class))).thenReturn(userResponse);
 
         final var result = this.userService.getUsers(0);
 
