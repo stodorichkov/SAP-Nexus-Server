@@ -1,51 +1,83 @@
 package com.example.nexus.service;
 
+import com.example.nexus.config.ImageConfig;
 import com.example.nexus.constant.ImageConstants;
-import com.example.nexus.constant.MessageConstants;
-import com.example.nexus.exception.BadRequestException;
+import com.example.nexus.constant.SingleSymbolConstants;
+import com.example.nexus.exception.FileUploadException;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
+    private final ImageConfig imageConfig;
+
     @Override
-    @SneakyThrows
-    public String saveImage(MultipartFile file) {
-        final var originalFilename = Optional
-                .ofNullable(file.getOriginalFilename())
-                .orElseThrow(() -> new BadRequestException(MessageConstants.INVALID_FILENAME));
-        final var fileName = this.generateFileName(originalFilename);
-        final var filePath = this.generatePath(fileName);
+    public String upload(MultipartFile file) {
+        final var img = this.validate(file);
+        final var filename = this.generateFileName();
+        final var extension = this.getExtension(file);
+        final var path = this.generatePath(filename, extension);
 
-        final var convertedFile = new File(filePath);
-        file.transferTo(convertedFile);
+        this.saveImage(img, extension, path);
 
-        return this.generateUrl(fileName);
+        return generateUrl(path.getFileName().toString());
     }
 
-    private String generateFileName(String originalFilename) {
+    @SneakyThrows
+    private BufferedImage validate(MultipartFile file) {
+        return Optional.ofNullable(ImageIO.read(file.getInputStream()))
+                .orElseThrow(FileUploadException::new);
+    }
+
+    private String generateFileName() {
         return ImageConstants.PREFIX +
                 UUID.randomUUID().toString().substring(0, 4) +
-                Instant.now().toEpochMilli() +
-                this.getExtension(originalFilename);
+                Instant.now().toEpochMilli();
     }
 
-    private String getExtension(String originalFilename) {
-        return originalFilename.substring(originalFilename.lastIndexOf("."));
+    private String getExtension(MultipartFile file) {
+        return Objects
+                .requireNonNull(file.getOriginalFilename())
+                .substring(file.getOriginalFilename().lastIndexOf(SingleSymbolConstants.DOT));
     }
 
+    @SneakyThrows
+    private Path generatePath(String fileName, String extension) {
+        final var path = Paths.get(this.imageConfig.getDir(), fileName + extension);
+        final var dir = path.getParent();
 
-    private String generatePath(String fileName) {
-        return ImageConstants.PATH + fileName;
+        if(dir != null) {
+            Files.createDirectories(dir);
+        }
+
+        return path;
+    }
+
+    @SneakyThrows
+    private void saveImage(BufferedImage img, String extension, Path filePath) {
+        ImageIO.write(
+                img,
+                extension.replace(
+                        SingleSymbolConstants.DOT,
+                        SingleSymbolConstants.EMPTY_STRING
+                ),
+                filePath.toFile()
+        );
     }
 
     private String generateUrl(String filename) {
-        return ImageConstants.URL + filename;
+        return imageConfig.getBaseUrl() + filename;
     }
 }

@@ -46,5 +46,5 @@ public class MessageConstants {
             "positive or zero!";
 
     // images
-    public static final String INVALID_FILENAME = "Invalid filename!";
+    public static final String FILE_UPLOAD_FAILURE = "File upload failed.";
 }

@@ -22,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
         final var category = this.categoryRepository
                 .findByName(productRequest.category())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
-        final var imageUrl = this.fileService.saveImage(productRequest.image());
+        final var imageUrl = this.fileService.upload(productRequest.image());
 
         final var product = this.productMapper.mapProduct(productRequest);
         product.setCategory(category);

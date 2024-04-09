@@ -9,7 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,6 +60,22 @@ public class GlobalExceptionHandler {
                         .map(FieldError::getDefaultMessage)
                         .collect(Collectors.joining("\n"))
                 );
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<String> handle(FileUploadException ex) {
+        log.error(ex.getMessage());
+        log.info(ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handle(IOException ex) {
+        log.error(ex.getMessage());
+        log.info(ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 
     @ExceptionHandler(Exception.class)

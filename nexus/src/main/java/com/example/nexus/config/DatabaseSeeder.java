@@ -17,8 +17,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        this.roleService.seedRole(RoleConstants.USER);
-        this.roleService.seedRole(RoleConstants.ADMIN);
+        final var roles = ConstantsUtil.getAllConstants(RoleConstants.class);
+
+        roles.forEach(this.roleService::seedRole);
         this.userService.seedAdmin();
     }
 }
