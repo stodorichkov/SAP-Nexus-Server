@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,10 +26,9 @@ public class FileServiceImpl implements FileService {
     public String upload(MultipartFile file) {
         final var img = this.validate(file);
         final var filename = this.generateFileName();
-        final var extension = this.getExtension(file);
-        final var path = this.generatePath(filename, extension);
+        final var path = this.generatePath(filename);
 
-        this.saveImage(img, extension, path);
+        this.saveImage(img, path);
 
         return generateUrl(path.getFileName().toString());
     }
@@ -47,15 +45,9 @@ public class FileServiceImpl implements FileService {
                 Instant.now().toEpochMilli();
     }
 
-    private String getExtension(MultipartFile file) {
-        return Objects
-                .requireNonNull(file.getOriginalFilename())
-                .substring(file.getOriginalFilename().lastIndexOf(SingleSymbolConstants.DOT));
-    }
-
     @SneakyThrows
-    private Path generatePath(String fileName, String extension) {
-        final var path = Paths.get(this.imageConfig.getDir(), fileName + extension);
+    private Path generatePath(String fileName) {
+        final var path = Paths.get(this.imageConfig.getDir(), fileName + ImageConstants.EXTENSION);
         final var dir = path.getParent();
 
         if(dir != null) {
@@ -66,10 +58,10 @@ public class FileServiceImpl implements FileService {
     }
 
     @SneakyThrows
-    private void saveImage(BufferedImage img, String extension, Path filePath) {
+    private void saveImage(BufferedImage img, Path filePath) {
         ImageIO.write(
                 img,
-                extension.replace(
+                ImageConstants.EXTENSION.replace(
                         SingleSymbolConstants.DOT,
                         SingleSymbolConstants.EMPTY_STRING
                 ),
