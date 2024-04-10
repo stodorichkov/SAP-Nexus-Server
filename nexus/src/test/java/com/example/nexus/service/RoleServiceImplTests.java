@@ -36,7 +36,7 @@ public class RoleServiceImplTests {
 
     @Test
     void seedRole_roleAlreadyExist_expectNotSave() {
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(new Role()));
+        when(this.roleRepository.findByName(roleName)).thenReturn(Optional.of(new Role()));
 
         this.roleService.seedRole(roleName);
 
