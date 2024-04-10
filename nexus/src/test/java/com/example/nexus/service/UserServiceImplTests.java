@@ -62,8 +62,7 @@ public class UserServiceImplTests {
         final var users = List.of(new User(), new User(), new User());
         page = new PageImpl<>(users);
 
-        userResponse = new UserResponse(
-                "stodorichkov123", roles.stream().map(Role::getName).toList());
+        userResponse = new UserResponse("stodorichkov123", roles.stream().map(Role::getName).toList());
     }
 
     @Test
