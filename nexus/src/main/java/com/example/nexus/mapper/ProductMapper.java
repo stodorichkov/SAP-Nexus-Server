@@ -9,5 +9,5 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
     @Mapping(target = "category", ignore = true)
-    Product mapProduct(ProductRequest productRequest);
+    Product productRequestToProduct(ProductRequest productRequest);
 }

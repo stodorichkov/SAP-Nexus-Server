@@ -98,7 +98,7 @@ public class AuthServiceImplTests {
     @Test
     void registerUser_noRoleInDatabase_expectNotFoundException() {
         when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
+        when(this.registerMapper.registerRequestToProfile(registerRequest)).thenReturn(profile);
         when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(this.roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
 
@@ -112,7 +112,7 @@ public class AuthServiceImplTests {
     @Test
     void registerUser_everythingIsCorrect_expectSaveNewProfile() {
         when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
+        when(this.registerMapper.registerRequestToProfile(registerRequest)).thenReturn(profile);
         when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
         when(this.roleRepository.findByName(RoleConstants.USER)).
         thenReturn(Optional.of(role));

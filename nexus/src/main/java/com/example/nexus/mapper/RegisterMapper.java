@@ -9,5 +9,5 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RegisterMapper {
     @Mapping(target = "user.username", source = "username")
-    Profile mapProfile(RegisterRequest registerRequest);
+    Profile registerRequestToProfile(RegisterRequest registerRequest);
 }

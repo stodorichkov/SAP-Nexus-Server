@@ -97,7 +97,7 @@ public class ProductServiceImplTests {
         when(this.categoryRepository.findByName(productRequest.category()))
                 .thenReturn(Optional.ofNullable(product.getCategory()));
         when(this.fileService.upload(productRequest.image())).thenReturn("url");
-        when(this.productMapper.mapProduct(productRequest)).thenReturn(product);
+        when(this.productMapper.productRequestToProduct(productRequest)).thenReturn(product);
 
         productService.addProduct(productRequest);
 

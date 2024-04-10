@@ -25,11 +25,11 @@ public class Product {
 
     private Float minPrice;
 
-    private int discount;
+    private Integer discount;
 
     private String imageLink;
 
-    private int availability;
+    private Integer availability;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "campaign_id")

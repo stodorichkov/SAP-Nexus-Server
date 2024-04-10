@@ -1,0 +1,11 @@
+package com.example.nexus.model.payload.request;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
+public record ProductsRequest(
+        @RequestParam(required = false)
+        String campaign,
+        @RequestParam(required = false)
+        Boolean promo
+) {
+}

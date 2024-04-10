@@ -32,6 +32,7 @@ public class UserServiceImplTests {
     private static List<Role> roles;
     private static Page<User> page;
     private static UserResponse userResponse;
+    private static Pageable pageable;
 
     @Mock
     private UserRepository userRepository;
@@ -61,6 +62,8 @@ public class UserServiceImplTests {
 
         final var users = List.of(new User(), new User(), new User());
         page = new PageImpl<>(users);
+
+        pageable = Pageable.ofSize(20);
 
         userResponse = new UserResponse("stodorichkov123", roles.stream().map(Role::getName).toList());
     }
@@ -98,9 +101,9 @@ public class UserServiceImplTests {
     @Test
     public void getUsers_expectPage() {
         when(this.userRepository.findAll(any(Pageable.class))).thenReturn(page);
-        when(this.userMapper.map(any(User.class))).thenReturn(userResponse);
+        when(this.userMapper.userToUserResponse(any(User.class))).thenReturn(userResponse);
 
-        final var result = this.userService.getUsers(0);
+        final var result = this.userService.getUsers(pageable);
 
         assertNotNull(result);
         assertEquals(page.getContent().size(), result.getContent().size());

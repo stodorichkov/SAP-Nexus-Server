@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException(MessageConstants.USER_EXISTS);
         }
 
-        final var newProfile = this.registerMapper.mapProfile(registerRequest);
+        final var newProfile = this.registerMapper.registerRequestToProfile(registerRequest);
         newProfile.getUser().setPassword(this.passwordEncoder.encode(registerRequest.password()));
         final var role = this.roleRepository
                 .findByName(RoleConstants.USER)
