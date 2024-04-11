@@ -14,4 +14,5 @@ public class MessageConstants {
     public static final String WRONG_PASSWORD_FORMAT = "Password must be at least 8 characters long," +
             " contain at least one digit, one uppercase letter and one lowercase letter!";
     public static final String USER_ALREADY_EXISTS = "User already exists!";
+    public static final String INVALID_MONEYNUMBER = "The money is below zero";
 }
