@@ -32,7 +32,6 @@ public class ProductServiceImplTests {
     private static ProductRequest productRequest;
     private static ProductsRequest productsRequest;
     private static ProductResponse productResponse;
-
     private static Pageable pageable;
 
     @Mock
@@ -104,10 +103,10 @@ public class ProductServiceImplTests {
     void addProduct_categoryNotExist_expectNotFoundException() {
         when(this.categoryRepository.findByName(productRequest.category())).thenReturn(Optional.empty());
 
+        assertThrows(NotFoundException.class, () -> this.productService.addProduct(productRequest));
+
         verify(this.categoryRepository).findByName(productRequest.category());
         verifyNoInteractions(this.fileService, this.productMapper, this.productRepository);
-
-        assertThrows(NotFoundException.class, () -> this.productService.addProduct(productRequest));
     }
 
     @Test
@@ -139,7 +138,7 @@ public class ProductServiceImplTests {
     void getProducts_expectPage() {
         final var productPage = new PageImpl<>(List.of(product));
 
-        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productRepository.findAll(any(Specification.class), pageable)).thenReturn(productPage);
         when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
 
         final var result = this.productService.getProducts(productsRequest, pageable);

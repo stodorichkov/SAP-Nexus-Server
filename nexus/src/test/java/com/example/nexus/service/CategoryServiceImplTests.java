@@ -13,7 +13,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceImplTests {
@@ -36,7 +35,7 @@ public class CategoryServiceImplTests {
 
         this.categoryService.seedCategory(category.getName());
 
-        verifyNoInteractions(this.categoryRepository);
+        verify(categoryRepository, never()).save(any());
     }
 
     @Test
