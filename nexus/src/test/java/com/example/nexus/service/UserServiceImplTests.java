@@ -13,14 +13,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,11 +27,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTests {
-    private static String passwordHash;
-    private static List<Role> roles;
-    private static Page<User> page;
+    private static User user;
+    private static Role role;
     private static UserResponse userResponse;
-    private static Pageable pageable;
 
     @Mock
     private UserRepository userRepository;
@@ -44,28 +41,27 @@ public class UserServiceImplTests {
     private PasswordEncoder passwordEncoder;
     @Mock
     private UserMapper userMapper;
+    @Captor
+    private ArgumentCaptor<Profile> profileCaptor;
     @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeAll
     static void serUp() {
-        passwordHash = "hashedPassword";
-
-        roles = new ArrayList<>();
-        Role role = new Role();
+        role = new Role();
         role.setId(1L);
         role.setName("USER");
-        roles.add(role);
-        role.setId(2L);
-        role.setName("ADMIN");
-        roles.add(role);
 
-        final var users = List.of(new User(), new User(), new User());
-        page = new PageImpl<>(users);
+        user = new User();
+        user.setId(1L);
+        user.setUsername("Username");
+        user.setPassword("Password");
+        user.setRoles(List.of(role));
 
-        pageable = Pageable.ofSize(20);
-
-        userResponse = new UserResponse("stodorichkov123", roles.stream().map(Role::getName).toList());
+        userResponse = new UserResponse(
+                "Username",
+                List.of("USER")
+        );
     }
 
     @Test
@@ -80,32 +76,32 @@ public class UserServiceImplTests {
 
     @Test
     void seedAdmin_userNotExists_expectSave() {
-        when(this.roleRepository.findAll()).thenReturn(roles);
-        when(this.passwordEncoder.encode(AdminConstants.PASSWORD)).thenReturn(passwordHash);
+        when(this.roleRepository.findAll()).thenReturn(user.getRoles());
+        when(this.passwordEncoder.encode(AdminConstants.PASSWORD)).thenReturn(user.getPassword());
 
         this.userService.seedAdmin();
 
-        final var profileCaptor = ArgumentCaptor.forClass(Profile.class);
         verify(this.profileRepository).save(profileCaptor.capture());
-        final var profile = profileCaptor.getValue();
 
         assertAll(
-                () -> assertEquals(AdminConstants.USERNAME, profile.getUser().getUsername()),
-                () -> assertEquals(passwordHash, profile.getUser().getPassword()),
-                () -> assertEquals(roles, profile.getUser().getRoles()),
-                () -> assertEquals(AdminConstants.FIRST_NAME, profile.getFirstName()),
-                () -> assertEquals(AdminConstants.LAST_NAME, profile.getLastName())
+                () -> assertEquals(AdminConstants.USERNAME, profileCaptor.getValue().getUser().getUsername()),
+                () -> assertEquals(user.getPassword(), profileCaptor.getValue().getUser().getPassword()),
+                () -> assertEquals(user.getRoles(), profileCaptor.getValue().getUser().getRoles()),
+                () -> assertEquals(AdminConstants.FIRST_NAME, profileCaptor.getValue().getFirstName()),
+                () -> assertEquals(AdminConstants.LAST_NAME, profileCaptor.getValue().getLastName())
         );
     }
 
     @Test
     public void getUsers_expectPage() {
-        when(this.userRepository.findAll(any(Pageable.class))).thenReturn(page);
+        final var userPage = new PageImpl<>(List.of(user));
+        final var pageable = Pageable.unpaged();
+
+        when(this.userRepository.findAll(eq(pageable))).thenReturn(userPage);
         when(this.userMapper.userToUserResponse(any(User.class))).thenReturn(userResponse);
 
         final var result = this.userService.getUsers(pageable);
 
-        assertNotNull(result);
-        assertEquals(page.getContent().size(), result.getContent().size());
+        assertEquals(List.of(userResponse), result.getContent());
     }
 }

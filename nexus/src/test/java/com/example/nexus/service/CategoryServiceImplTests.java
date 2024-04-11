@@ -8,19 +8,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceImplTests {
-    private static String categoryName;
-    private static List<String> names;
-    private static List<Category> categories;
+    private static Category category;
 
     @Mock
     private CategoryRepository categoryRepository;
@@ -29,41 +26,33 @@ public class CategoryServiceImplTests {
 
     @BeforeAll
     static void setUp() {
-        categoryName = "New category";
-
-        names = List.of("C1", "C2", "C3");
-
-        categories = new ArrayList<>();
-        names.forEach(n -> {
-            final var category = new Category();
-            category.setName(n);
-            categories.add(category);
-        });
-    }
-
-    @Test
-    void seedCategory_categoryNotExist_expectSave() {
-        this.categoryService.seedCategory(categoryName);
-
-        verify(this.categoryRepository, times(1))
-                .save(argThat(role -> role.getName().equals(categoryName)));
+        category = new Category();
+        category.setName("Category");
     }
 
     @Test
     void seedCategory_categoryAlreadyExist_expectNotSave() {
-        when(this.categoryRepository.findByName(categoryName)).thenReturn(Optional.of(new Category()));
+        when(this.categoryRepository.findByName(eq(category.getName()))).thenReturn(Optional.of(category));
 
-        this.categoryService.seedCategory(categoryName);
+        this.categoryService.seedCategory(category.getName());
 
-        verify(this.categoryRepository, never()).save(any());
+        verifyNoInteractions(this.categoryRepository);
+    }
+
+    @Test
+    void seedCategory_categoryNotExist_expectSave() {
+        this.categoryService.seedCategory(category.getName());
+
+        verify(this.categoryRepository, times(1))
+                .save(argThat(c -> c.equals(category)));
     }
 
     @Test
     void getCategories_expectList() {
-        when(this.categoryRepository.findAll()).thenReturn(categories);
+        when(this.categoryRepository.findAll()).thenReturn(List.of(category));
 
         final var result = this.categoryService.getCategories();
 
-        assertEquals(names, result);
+        assertEquals(List.of(category.getName()), result);
     }
 }

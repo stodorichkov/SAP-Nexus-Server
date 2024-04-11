@@ -37,9 +37,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProducts(ProductsRequest productRequest, Pageable pageable) {
-        final var specification = ProductSpecifications.getProductSpecifications(productRequest);
+    public Page<ProductResponse> getProducts(ProductsRequest productsRequest, Pageable pageable) {
+        final var specification = ProductSpecifications.getProductSpecifications(productsRequest);
 
-        return this.productRepository.findAll(specification, pageable).map(null);
+        return this.productRepository
+                .findAll(specification, pageable)
+                .map(this.productMapper::productToProductResponse);
     }
 }
