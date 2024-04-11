@@ -7,7 +7,6 @@ public record ProductResponse(
         String description,
         Float price,
         Integer discount,
-        String imageLink,
-        String campaign
+        String imageLink
 ) {
 }

@@ -4,7 +4,6 @@ import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.payload.request.ProductRequest;
-import com.example.nexus.model.payload.request.ProductsRequest;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
@@ -37,8 +36,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProducts(ProductsRequest productsRequest, Pageable pageable) {
-        final var specification = ProductSpecifications.getProductSpecifications(productsRequest);
+    public Page<ProductResponse> getProducts(Pageable pageable) {
+        final var specification = ProductSpecifications.findAvailable();
+
+        return this.productRepository
+                .findAll(specification, pageable)
+                .map(this.productMapper::productToProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getPromoProducts(Pageable pageable) {
+        final var specification = ProductSpecifications.findPromos()
+                .and(ProductSpecifications.findAvailable());
+
+        return this.productRepository
+                .findAll(specification, pageable)
+                .map(this.productMapper::productToProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductsByCampaign(Pageable pageable, String campaignName) {
+        final var specification = ProductSpecifications.findByCampaignName(campaignName)
+                .and(ProductSpecifications.findAvailable());
 
         return this.productRepository
                 .findAll(specification, pageable)

@@ -6,10 +6,10 @@ import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductRequest;
-import com.example.nexus.model.payload.request.ProductsRequest;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
+import com.example.nexus.specification.ProductSpecifications;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
-
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.*;
 public class ProductServiceImplTests {
     private static Product product;
     private static ProductRequest productRequest;
-    private static ProductsRequest productsRequest;
     private static ProductResponse productResponse;
     private static Pageable pageable;
 
@@ -80,11 +78,6 @@ public class ProductServiceImplTests {
                 file
         );
 
-        productsRequest = new ProductsRequest(
-                null,
-                null
-        );
-
         productResponse = new ProductResponse(
                 "Product",
                 "Brand",
@@ -92,8 +85,7 @@ public class ProductServiceImplTests {
                 "Description",
                 100f,
                 null,
-                "url",
-                null
+                "url"
         );
 
         pageable = Pageable.unpaged();
@@ -137,11 +129,36 @@ public class ProductServiceImplTests {
     @Test
     void getProducts_expectPage() {
         final var productPage = new PageImpl<>(List.of(product));
+        final var specification = ProductSpecifications.findAvailable();
 
-        when(this.productRepository.findAll(any(Specification.class), pageable)).thenReturn(productPage);
+        when(this.productRepository.findAll(eq(specification), eq(pageable))).thenReturn(productPage);
         when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
 
-        final var result = this.productService.getProducts(productsRequest, pageable);
+        final var result = this.productService.getProducts(pageable);
+
+        assertEquals(List.of(productResponse), result.getContent());
+    }
+
+    @Test
+    void getPromoProducts_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
+
+        final var result = this.productService.getPromoProducts(pageable);
+
+        assertEquals(List.of(productResponse), result.getContent());
+    }
+
+    @Test
+    void getProductsByCampaign_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
+
+        final var result = this.productService.getProductsByCampaign(pageable, "a");
 
         assertEquals(List.of(productResponse), result.getContent());
     }

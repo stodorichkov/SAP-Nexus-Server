@@ -13,6 +13,5 @@ public interface ProductMapper {
     Product productRequestToProduct(ProductRequest productRequest);
 
     @Mapping(target = "category", source = "category.name")
-    @Mapping(target = "campaign", source = "campaign.name")
     ProductResponse productToProductResponse(Product product);
 }
