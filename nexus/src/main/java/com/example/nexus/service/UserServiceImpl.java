@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> getUsers(int pageNumber) {
         final var pageable = PageRequest.of(pageNumber, PageConstants.USER_PAGE_SIZE);
 
-        return this.profileRepository
+        return this.userRepository
                 .findAll(pageable)
                 .map(this.userMapper::map);
     }

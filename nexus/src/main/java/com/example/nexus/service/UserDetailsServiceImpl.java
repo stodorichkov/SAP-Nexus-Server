@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         final var authorities = user
                 .getRoles()
                 .stream()
-                .map(roleMapper::map)
+                .map(roleMapper::mapToSimpleGrantedAuthority)
                 .toList();
 
         return new User(user.getUsername(), user.getPassword(), authorities);
