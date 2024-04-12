@@ -4,6 +4,7 @@ import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
@@ -56,12 +57,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProductsByCampaign(Pageable pageable, String campaignName) {
+    public Page<ProductResponse> getProductsByCampaign(String campaignName, Pageable pageable) {
         final var specification = ProductSpecifications.findByCampaignName(campaignName)
                 .and(ProductSpecifications.findAvailable());
 
         return this.productRepository
                 .findAll(specification, pageable)
                 .map(this.productMapper::productToProductResponse);
+    }
+
+    @Override
+    public Page<AdminProductResponse> getProductsAdmin(Pageable pageable) {
+        return this.productRepository
+                .findAll(pageable)
+                .map(this.productMapper::productToAdminProductResponse);
+    }
+
+    @Override
+    public Page<AdminProductResponse> getProductsByCampaignAdmin(String campaignName, Pageable pageable) {
+        final var specification = ProductSpecifications.findByCampaignName(campaignName);
+
+        return this.productRepository
+                .findAll(specification, pageable)
+                .map(this.productMapper::productToAdminProductResponse);
     }
 }
