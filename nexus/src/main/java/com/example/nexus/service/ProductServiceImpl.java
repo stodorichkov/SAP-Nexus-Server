@@ -31,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
         final var product = this.productMapper.productRequestToProduct(productRequest);
         product.setCategory(category);
         product.setImageLink(imageUrl);
+        product.setDiscount(0);
 
         this.productRepository.save(product);
     }
