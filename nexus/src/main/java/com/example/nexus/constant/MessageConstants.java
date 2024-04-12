@@ -22,13 +22,6 @@ public class MessageConstants {
     // authentication
     public static final String INVALID_USERNAME_PASSWORD = "Invalid username or password!";
     public static final String INVALID_JWT = "JWT was expired or invalid!";
-    public static final String ROLE_NOT_FOUNT = "Role not found!";
-    public static final String CONFIRM_PASSWORD_NOT_MATCHING = "Repeated password doesn't match original!";
-    public static final String WRONG_PASSWORD_FORMAT = "Password must be at least 8 characters long," +
-            " contain at least one digit, one uppercase letter and one lowercase letter!";
-    public static final String USER_ALREADY_EXISTS = "User already exists!";
-    public static final String INVALID_MONEYNUMBER = "The money is below zero";
-}
 
     // registration
     public static final String INVALID_USERNAME = "Invalid format for username. Must be at least 3 symbols long.";
@@ -54,4 +47,7 @@ public class MessageConstants {
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";
+
+    // profile
+    public static final String INVALID_MONEY_NUMBER = "The number is below zero";
 }

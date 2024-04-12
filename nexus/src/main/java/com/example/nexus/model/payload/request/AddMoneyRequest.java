@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import com.example.nexus.constant.MessageConstants;
 
 public record AddMoneyRequest(
-        @PositiveOrZero(message = MessageConstants.INVALID_MONEYNUMBER)
+        @PositiveOrZero(message = MessageConstants.INVALID_MONEY_NUMBER)
         float money
 ) {
 }
