@@ -3,6 +3,7 @@ package com.example.nexus.service;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Product;
+import com.example.nexus.model.payload.request.StartCampaignRequest;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.when;
 public class CampaignServiceImplTests {
     private static Campaign campaign;
     private static Product product;
+    private static StartCampaignRequest startCampaignRequest;
 
     @Mock
     private CampaignRepository campaignRepository;
@@ -47,6 +50,32 @@ public class CampaignServiceImplTests {
         product.setName("Product");
         product.setCampaign(campaign);
         product.setDiscount(10);
+
+        startCampaignRequest = new StartCampaignRequest("Campaign",
+                LocalDate.parse("2024-04-12"),
+                LocalDate.parse("2024-04-12")
+        );
+    }
+
+    @Test
+    void starCampaign_campaignNotExist_expectNotFoundException() {
+        assertThrows(NotFoundException.class, () -> this.campaignService.startCampaign(startCampaignRequest));
+    }
+
+    @Test
+    void startCampaign_campaignExist_expectStartCampaign() {
+        when(this.campaignRepository.findByName(campaign.getName())).thenReturn(Optional.of(campaign));
+
+        this.campaignService.startCampaign(startCampaignRequest);
+
+        verify(this.campaignRepository).save(campaignCaptor.capture());
+
+        assertAll(
+                () -> assertEquals(startCampaignRequest.name(), campaignCaptor.getValue().getName()),
+                () -> assertEquals(startCampaignRequest.startDate(), campaignCaptor.getValue().getStartDate()),
+                () -> assertEquals(startCampaignRequest.endDate(), campaignCaptor.getValue().getEndDate()),
+                () -> assertTrue(campaignCaptor.getValue().getIsActive())
+        );
     }
 
     @Test
@@ -65,6 +94,7 @@ public class CampaignServiceImplTests {
         verify(this.productRepository).saveAll(productsCaptor.capture());
 
         assertAll(
+                () -> assertEquals(campaign.getName(), campaignCaptor.getValue().getName()),
                 () -> assertNull(campaignCaptor.getValue().getStartDate()),
                 () -> assertNull(campaignCaptor.getValue().getEndDate()),
                 () -> assertFalse(campaignCaptor.getValue().getIsActive()),

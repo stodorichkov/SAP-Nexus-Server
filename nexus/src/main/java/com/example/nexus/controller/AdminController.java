@@ -1,6 +1,7 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.request.StartCampaignRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.service.CampaignService;
 import com.example.nexus.service.CategoryService;
@@ -52,6 +53,13 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     List<String> getCategories() {
         return this.categoryService.getCategories();
+    }
+
+    @PatchMapping("/campaign/start")
+    ResponseEntity<?> startCampaign(@Valid @RequestBody StartCampaignRequest startCampaignRequest) {
+        this.campaignService.startCampaign(startCampaignRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PatchMapping("/campaign/{campaignName}/stop")
