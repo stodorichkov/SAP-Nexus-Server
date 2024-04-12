@@ -6,6 +6,7 @@ import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
@@ -30,6 +31,7 @@ public class ProductServiceImplTests {
     private static Product product;
     private static ProductRequest productRequest;
     private static ProductResponse productResponse;
+    private static AdminProductResponse adminProductResponse;
     private static Pageable pageable;
 
     @Mock
@@ -79,13 +81,27 @@ public class ProductServiceImplTests {
         );
 
         productResponse = new ProductResponse(
+                1L,
                 "Product",
                 "Brand",
                 "Category",
                 "Description",
                 100f,
-                null,
+                0,
                 "url"
+        );
+
+        adminProductResponse = new AdminProductResponse(
+                1L,
+                "Product",
+                "Brand",
+                "Category",
+                "Campaign",
+                "Description",
+                10,
+                100f,
+                100f,
+                0
         );
 
         pageable = Pageable.unpaged();
@@ -158,8 +174,33 @@ public class ProductServiceImplTests {
         when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
         when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
 
-        final var result = this.productService.getProductsByCampaign(pageable, "a");
+        final var result = this.productService.getProductsByCampaign("a", pageable);
 
         assertEquals(List.of(productResponse), result.getContent());
+    }
+
+    @Test
+    void getProductsAdmin_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToAdminProductResponse(eq(product))).thenReturn(adminProductResponse);
+
+        final var result = this.productService.getProductsAdmin(pageable);
+
+        assertEquals(List.of(adminProductResponse), result.getContent());
+    }
+
+    @Test
+    void getProductsByCampaignAdmin_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToAdminProductResponse(eq(product))).thenReturn(adminProductResponse);
+
+        final var result = this.productService
+                .getProductsByCampaignAdmin("a", pageable);
+
+        assertEquals(List.of(adminProductResponse), result.getContent());
     }
 }

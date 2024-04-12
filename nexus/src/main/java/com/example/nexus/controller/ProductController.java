@@ -23,11 +23,11 @@ public class ProductController {
 
     @GetMapping("/promo")
     public Page<ProductResponse> getPromoProducts(Pageable pageable) {
-        return this.productService.getPromoProducts(pageable);
+        return this.productService.getProducts(pageable);
     }
 
     @GetMapping("/campaign/{campaignName}")
-    public Page<ProductResponse> getPromoProducts(Pageable pageable, @PathVariable String campaignName) {
-        return this.productService.getProductsByCampaign(pageable, campaignName);
+    public Page<ProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
+        return this.productService.getProductsByCampaign(campaignName, pageable);
     }
 }
