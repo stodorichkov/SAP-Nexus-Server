@@ -1,6 +1,7 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.AdminConstants;
+import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.UserMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.Role;
@@ -104,5 +105,36 @@ public class UserServiceImplTests {
 
         assertNotNull(result);
         assertEquals(page.getContent().size(), result.getContent().size());
+    }
+
+    @Test
+    public void updateUserRole_userNotExist_expectNotFoundException() {
+        when(this.userRepository.findByUsername("stodorichkov123"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.updateUserRole(userResponse));
+    }
+
+    @Test
+    public void updateUserRole_userExists_expectUpdate() {
+        roles.remove(roles.size() - 1);
+        User user = new User();
+        user.setUsername("stodorichkov");
+        user.setPassword("password");
+        user.setRoles(roles);
+        when(this.passwordEncoder.encode("password"))
+                .thenReturn(passwordHash);
+        when(this.userRepository.findByUsername("stodorichkov123"))
+                .thenReturn(Optional.of(user));
+
+        final var userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(this.userRepository).save(userCaptor.capture());
+        final var userValue = userCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals("stodorichkov", userValue.getUsername()),
+                () -> assertEquals(passwordHash, userValue.getPassword()),
+                () -> assertEquals(roles, userValue.getRoles())
+        );
     }
 }
