@@ -12,7 +12,8 @@ public class MessageConstants {
     public static final String USER_NOT_FOUND = "User not found!";
     public static final String CATEGORY_NOT_FOUND = "Category not found!";
     public static final String ROLE_NOT_FOUNT = "Role not found!";
-    public static final String CAMPAIGN_NOT_FOUND = "Campaign not found";
+    public static final String CAMPAIGN_NOT_FOUND = "Campaign not found!";
+    public static final String PRODUCT_NOT_FOUND = "Product not found!";
 
     // exists
     public static final String USER_EXISTS = "User already exists!";
@@ -45,6 +46,12 @@ public class MessageConstants {
             "digits, and spaces.";
     public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
             "positive or zero!";
+
+    //campaign
+    public static final String INVALID_START_DATE = "Invalid format for start date. Start date must be present or" +
+            " future!";
+    public static final String INVALID_END_DATE = "Invalid format for end date. End date must be greater than or" +
+            " equal to the start date";
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";
