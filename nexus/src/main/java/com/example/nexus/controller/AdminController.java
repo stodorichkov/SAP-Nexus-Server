@@ -6,6 +6,7 @@ import com.example.nexus.service.ProductService;
 import com.example.nexus.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ public class AdminController {
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
-    public Page<UserResponse> getUsers(@RequestParam int pageNumber) {
-        return this.userService.getUsers(pageNumber);
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return this.userService.getUsers(pageable);
     }
 
     @PostMapping("/product")

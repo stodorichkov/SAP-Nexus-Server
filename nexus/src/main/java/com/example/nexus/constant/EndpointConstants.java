@@ -4,7 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestMappingConstants {
+public class EndpointConstants {
     public static final String AUTH = "/auth/**";
     public static final String ADMIN = "/admin/**";
+    public static final String PRODUCT = "/product/**";
 }

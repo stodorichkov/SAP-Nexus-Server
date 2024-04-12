@@ -10,10 +10,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RoleMapper {
     @Mapping(target = "role", source = "name")
-    SimpleGrantedAuthority mapToSimpleGrantedAuthority(Role role);
+    SimpleGrantedAuthority roleToSimpleGrantedAuthority(Role role);
 
     @Named("roleToString")
-    static String mapToString(Role role) {
+    static String roleToString(Role role) {
         return role.getName();
     }
 }

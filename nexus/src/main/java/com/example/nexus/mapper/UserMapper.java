@@ -9,5 +9,5 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = RoleMapper.class)
 public interface UserMapper {
     @Mapping(target = "roles", qualifiedByName = "roleToString")
-    UserResponse map(User user);
+    UserResponse userToUserResponse(User user);
 }

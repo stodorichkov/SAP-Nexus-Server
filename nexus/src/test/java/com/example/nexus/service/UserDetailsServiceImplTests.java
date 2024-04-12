@@ -57,7 +57,7 @@ public class UserDetailsServiceImplTests {
     @Test
     void loadUserByUsername_userExist_expectLoadUser() {
         when(this.userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(this.roleMapper.mapToSimpleGrantedAuthority(role)).thenReturn(authority);
+        when(this.roleMapper.roleToSimpleGrantedAuthority(role)).thenReturn(authority);
 
         final var userDetails = this.userDetailsService.loadUserByUsername(username);
 
