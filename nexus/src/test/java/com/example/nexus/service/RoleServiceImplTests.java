@@ -9,12 +9,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RoleServiceImplTests {
-    private static String roleName;
+    private static Role role;
 
     @Mock
     private RoleRepository roleRepository;
@@ -22,24 +21,24 @@ public class RoleServiceImplTests {
     private RoleServiceImpl roleService;
 
     @BeforeAll
-    static void serUp() {
-        roleName = "New Role";
+    static void setUp() {
+        role = new Role();
+        role.setName("Role");
     }
 
     @Test
     void seedRole_roleNotExist_expectSave() {
-        this.roleService.seedRole(roleName);
+        this.roleService.seedRole(role.getName());
 
-        verify(this.roleRepository, times(1))
-                .save(argThat(role -> role.getName().equals(roleName)));
+        verify(this.roleRepository, times(1)).save(role);
     }
 
     @Test
     void seedRole_roleAlreadyExist_expectNotSave() {
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(new Role()));
+        when(this.roleRepository.findByName(role.getName())).thenReturn(Optional.of(role));
 
-        this.roleService.seedRole(roleName);
+        this.roleService.seedRole(role.getName());
 
-        verify(this.roleRepository, never()).save(any());
+        verify(this.roleRepository, never()).save(role);
     }
 }

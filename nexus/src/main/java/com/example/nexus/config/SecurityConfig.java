@@ -1,6 +1,6 @@
 package com.example.nexus.config;
 
-import com.example.nexus.constant.RequestMappingConstants;
+import com.example.nexus.constant.EndpointConstants;
 import com.example.nexus.constant.RoleConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,8 +31,8 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(RequestMappingConstants.AUTH).permitAll()
-                        .requestMatchers(RequestMappingConstants.ADMIN).hasAuthority(RoleConstants.ADMIN)
+                        .requestMatchers(EndpointConstants.AUTH, EndpointConstants.PRODUCT).permitAll()
+                        .requestMatchers(EndpointConstants.ADMIN).hasAuthority(RoleConstants.ADMIN)
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

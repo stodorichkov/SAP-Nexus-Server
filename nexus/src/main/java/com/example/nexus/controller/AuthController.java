@@ -3,6 +3,7 @@ package com.example.nexus.controller;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
 import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+    ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.registerUser(registerRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
