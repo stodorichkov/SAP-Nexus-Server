@@ -36,8 +36,6 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     @Transactional
     public void stopCampaign(String campaignName) {
-        System.out.println(campaignName);
-
         final var campaign = this.campaignRepository.findByName(campaignName)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
         final var specification = ProductSpecifications.findByCampaignName(campaignName);
