@@ -1,11 +1,13 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.service.CampaignService;
 import com.example.nexus.service.CategoryService;
 import com.example.nexus.service.ProductService;
 import com.example.nexus.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +22,12 @@ public class AdminController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final UserService userService;
+    private final CampaignService campaignService;
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
-    public Page<UserResponse> getUsers(@RequestParam int pageNumber) {
-        return this.userService.getUsers(pageNumber);
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return this.userService.getUsers(pageable);
     }
 
     @PostMapping("/product")
@@ -38,5 +41,12 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     List<String> getCategories() {
         return this.categoryService.getCategories();
+    }
+
+    @PatchMapping("/campaign/{campaignName}/stop")
+    ResponseEntity<?> stopCampaign(@PathVariable String campaignName) {
+        this.campaignService.stopCampaign(campaignName);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

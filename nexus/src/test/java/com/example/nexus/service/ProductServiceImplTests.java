@@ -6,16 +6,20 @@ import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
+import com.example.nexus.specification.ProductSpecifications;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
+import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,8 +27,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceImplTests {
-    private static ProductRequest productRequest;
     private static Product product;
+    private static ProductRequest productRequest;
+    private static ProductResponse productResponse;
+    private static Pageable pageable;
 
     @Mock
     private ProductRepository productRepository;
@@ -34,6 +40,8 @@ public class ProductServiceImplTests {
     private CategoryRepository categoryRepository;
     @Mock
     private FileService fileService;
+    @Captor
+    private ArgumentCaptor<Product> productCaptor;
     @InjectMocks
     private ProductServiceImpl productService;
 
@@ -42,11 +50,21 @@ public class ProductServiceImplTests {
         final var category = new Category();
         category.setName("Category");
 
-        final var content = new byte[]{};
-        final var file = new MockMultipartFile("file",
+        product = new Product();
+        product.setName("Product");
+        product.setBrand("Brand");
+        product.setCategory(category);
+        product.setAvailability(20);
+        product.setPrice(100f);
+        product.setMinPrice(100f);
+        product.setImageLink("url");
+        product.setDescription("Description");
+
+        final var file = new MockMultipartFile(
+                "file",
                 "test.png",
                 "image/png",
-                content
+                new byte[]{}
         );
 
         productRequest = new ProductRequest(
@@ -60,15 +78,17 @@ public class ProductServiceImplTests {
                 file
         );
 
-        product = new Product();
-        product.setName("Product");
-        product.setCategory(category);
-        product.setBrand("Brand");
-        product.setAvailability(20);
-        product.setPrice(100f);
-        product.setMinPrice(100f);
-        product.setImageLink("url");
-        product.setDescription("Description");
+        productResponse = new ProductResponse(
+                "Product",
+                "Brand",
+                "Category",
+                "Description",
+                100f,
+                null,
+                "url"
+        );
+
+        pageable = Pageable.unpaged();
     }
 
     @Test
@@ -87,9 +107,9 @@ public class ProductServiceImplTests {
                 .thenReturn(Optional.ofNullable(product.getCategory()));
         when(this.fileService.upload(productRequest.image())).thenThrow(FileUploadException.class);
 
-        assertThrows(FileUploadException.class, () -> productService.addProduct(productRequest));
-
         verifyNoInteractions(this.productMapper, this.productRepository);
+
+        assertThrows(FileUploadException.class, () -> productService.addProduct(productRequest));
     }
 
     @Test
@@ -97,14 +117,49 @@ public class ProductServiceImplTests {
         when(this.categoryRepository.findByName(productRequest.category()))
                 .thenReturn(Optional.ofNullable(product.getCategory()));
         when(this.fileService.upload(productRequest.image())).thenReturn("url");
-        when(this.productMapper.mapProduct(productRequest)).thenReturn(product);
+        when(this.productMapper.productRequestToProduct(productRequest)).thenReturn(product);
 
         productService.addProduct(productRequest);
 
-        final var productCaptor = ArgumentCaptor.forClass(Product.class);
         verify(this.productRepository).save(productCaptor.capture());
-        final var result = productCaptor.getValue();
 
-        assertEquals(product, result);
+        assertEquals(product, productCaptor.getValue());
+    }
+
+    @Test
+    void getProducts_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+        final var specification = ProductSpecifications.findAvailable();
+
+        when(this.productRepository.findAll(eq(specification), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
+
+        final var result = this.productService.getProducts(pageable);
+
+        assertEquals(List.of(productResponse), result.getContent());
+    }
+
+    @Test
+    void getPromoProducts_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
+
+        final var result = this.productService.getPromoProducts(pageable);
+
+        assertEquals(List.of(productResponse), result.getContent());
+    }
+
+    @Test
+    void getProductsByCampaign_expectPage() {
+        final var productPage = new PageImpl<>(List.of(product));
+
+        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
+
+        final var result = this.productService.getProductsByCampaign(pageable, "a");
+
+        assertEquals(List.of(productResponse), result.getContent());
     }
 }

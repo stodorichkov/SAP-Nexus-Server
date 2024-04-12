@@ -34,12 +34,11 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceImplTests {
-    private static String passwordHash;
-    private static RegisterRequest registerRequest;
-    private static Profile profile;
     private static Role role;
-    private static AuthenticationRequest authRequest;
     private static User user;
+    private static Profile profile;
+    private static RegisterRequest registerRequest;
+    private static AuthenticationRequest authRequest;
     private static String token;
 
     @Mock
@@ -61,20 +60,13 @@ public class AuthServiceImplTests {
 
     @BeforeAll
     static void setUp() {
-        passwordHash = "hashedPassword";
-        token = "token";
-
-        registerRequest = new RegisterRequest("Petar", "Georgiev", "petar_g",
-                "123456aA", "123456aA");
-        authRequest = new AuthenticationRequest("petar_g", passwordHash);
-
         role = new Role();
         role.setName("USER");
 
         user = new User();
         user.setId(1L);
         user.setUsername("petar_g");
-        user.setPassword(passwordHash);
+        user.setPassword("123456aA");
         user.getRoles().add(role);
 
         profile = new Profile();
@@ -83,6 +75,21 @@ public class AuthServiceImplTests {
         profile.setLastName("Georgiev");
         profile.setBalance(0.0f);
         profile.setUser(user);
+
+        registerRequest = new RegisterRequest(
+                "Petar",
+                "Georgiev",
+                "petar_g",
+                "123456aA",
+                "123456aA"
+        );
+
+        authRequest = new AuthenticationRequest(
+                "petar_g",
+                "123456aA"
+        );
+
+        token = "token";
     }
     @Test
     void registerUser_userAlreadyExists_expectUserAlreadyExistsException() {
@@ -98,8 +105,8 @@ public class AuthServiceImplTests {
     @Test
     void registerUser_noRoleInDatabase_expectNotFoundException() {
         when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
-        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
+        when(this.registerMapper.registerRequestToProfile(registerRequest)).thenReturn(profile);
+        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(user.getPassword());
         when(this.roleRepository.findByName(RoleConstants.USER)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(NotFoundException.class).
@@ -112,8 +119,8 @@ public class AuthServiceImplTests {
     @Test
     void registerUser_everythingIsCorrect_expectSaveNewProfile() {
         when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.empty());
-        when(this.registerMapper.mapProfile(registerRequest)).thenReturn(profile);
-        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(passwordHash);
+        when(this.registerMapper.registerRequestToProfile(registerRequest)).thenReturn(profile);
+        when(this.passwordEncoder.encode(registerRequest.password())).thenReturn(user.getPassword());
         when(this.roleRepository.findByName(RoleConstants.USER)).
         thenReturn(Optional.of(role));
 
@@ -125,7 +132,7 @@ public class AuthServiceImplTests {
 
         assertAll(
                 () -> assertEquals("petar_g", newProfile.getUser().getUsername()),
-                () -> assertEquals(passwordHash, newProfile.getUser().getPassword()),
+                () -> assertEquals(user.getPassword(), newProfile.getUser().getPassword()),
                 () -> assertEquals(RoleConstants.USER, newProfile.getUser().getRoles().get(0).getName()),
                 () -> assertEquals("Petar", newProfile.getFirstName()),
                 () -> assertEquals("Georgiev", newProfile.getLastName()),
