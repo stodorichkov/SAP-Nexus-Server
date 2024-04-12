@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SingleSymbolConstants {
-
     public static final String EMPTY_STRING = "";
     public static final String DOT = ".";
 }
