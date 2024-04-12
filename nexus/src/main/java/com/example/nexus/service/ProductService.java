@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
     void addProduct(ProductRequest productRequest);
+    void removeProductCampaign(Long productId);
     Page<ProductResponse> getProducts(Pageable pageable);
     Page<ProductResponse> getPromoProducts(Pageable pageable);
     Page<ProductResponse> getProductsByCampaign(String campaignName, Pageable pageable);

@@ -3,6 +3,7 @@ package com.example.nexus.service;
 import com.example.nexus.exception.FileUploadException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
+import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductRequest;
@@ -22,8 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import java.util.List;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,15 +53,21 @@ public class ProductServiceImplTests {
         final var category = new Category();
         category.setName("Category");
 
+        final var campaign = new Campaign();
+        campaign.setName("Campaign");
+
         product = new Product();
+        product.setId(1L);
         product.setName("Product");
         product.setBrand("Brand");
+        product.setDescription("Description");
         product.setCategory(category);
+        product.setCampaign(campaign);
         product.setAvailability(20);
         product.setPrice(100f);
-        product.setMinPrice(100f);
+        product.setMinPrice(90f);
+        product.setDiscount(10);
         product.setImageLink("url");
-        product.setDescription("Description");
 
         final var file = new MockMultipartFile(
                 "file",
@@ -135,11 +142,41 @@ public class ProductServiceImplTests {
         when(this.fileService.upload(productRequest.image())).thenReturn("url");
         when(this.productMapper.productRequestToProduct(productRequest)).thenReturn(product);
 
-        productService.addProduct(productRequest);
+        this.productService.addProduct(productRequest);
 
         verify(this.productRepository).save(productCaptor.capture());
 
         assertEquals(product, productCaptor.getValue());
+    }
+
+    @Test
+    void removeProductCampaign_productNotExist_expectNotFoundException() {
+        when(this.productRepository.findById(product.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () ->this.productService.removeProductCampaign(product.getId()));
+    }
+
+    @Test
+    void removeProductCampaign_productExist_expectRemoveCampaign() {
+        when(this.productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+
+        this.productService.removeProductCampaign(product.getId());
+
+        verify(this.productRepository).save(productCaptor.capture());
+
+        assertAll(
+                () -> assertNull(productCaptor.getValue().getCampaign()),
+                () -> assertEquals(0, productCaptor.getValue().getDiscount()),
+                () -> assertEquals(product.getId(), productCaptor.getValue().getId()),
+                () -> assertEquals(product.getName(), productCaptor.getValue().getName()),
+                () -> assertEquals(product.getBrand(), productCaptor.getValue().getBrand()),
+                () -> assertEquals(product.getDescription(), productCaptor.getValue().getDescription()),
+                () -> assertEquals(product.getCategory(), productCaptor.getValue().getCategory()),
+                () -> assertEquals(product.getAvailability(), productCaptor.getValue().getAvailability()),
+                () -> assertEquals(product.getPrice(), productCaptor.getValue().getPrice()),
+                () -> assertEquals(product.getMinPrice(), productCaptor.getValue().getMinPrice()),
+                () -> assertEquals(product.getImageLink(), productCaptor.getValue().getImageLink())
+        );
     }
 
     @Test

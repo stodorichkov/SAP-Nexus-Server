@@ -38,6 +38,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void removeProductCampaign(Long productId) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        product.setCampaign(null);
+        product.setDiscount(0);
+
+        this.productRepository.save(product);
+    }
+
+    @Override
     public Page<ProductResponse> getProducts(Pageable pageable) {
         final var specification = ProductSpecifications.findAvailable();
 

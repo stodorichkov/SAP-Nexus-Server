@@ -39,14 +39,16 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PatchMapping("/product/{productId}/campaign")
+    ResponseEntity<?> removeProductCampaign(@PathVariable Long productId) {
+        this.productService.removeProductCampaign(productId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @GetMapping("/product")
     Page<AdminProductResponse> getProducts(Pageable pageable) {
         return this.productService.getProductsAdmin(pageable);
-    }
-
-    @GetMapping("/product/campaign/{campaignName}")
-    Page<AdminProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
-        return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
     }
 
     @GetMapping("/categories")
@@ -67,5 +69,10 @@ public class AdminController {
         this.campaignService.stopCampaign(campaignName);
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/campaign/{campaignName}")
+    Page<AdminProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
+        return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
     }
 }
