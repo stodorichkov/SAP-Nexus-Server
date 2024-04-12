@@ -2,7 +2,6 @@ package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
-import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.payload.request.AddMoneyRequest;
 import com.example.nexus.repository.ProfileRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,13 +21,13 @@ public class ProfileServiceImpl implements ProfileService {
         final var token = this.jwtService.getTokenFromRequest(request);
         final var username = jwtService.getUsernameFromToken(token);
 
-
-        Profile profile = profileRepository.findByUserUsername(username)
+        final var profile = profileRepository.findByUserUsername(username)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.USER_NOT_FOUND));
 
-        float requestedMoney = addMoneyRequest.money();
-        float currentBalance = profile.getBalance();
-        float updatedBalance = currentBalance + requestedMoney;
+        final var requestedMoney = addMoneyRequest.money();
+        final var currentBalance = profile.getBalance();
+        final var updatedBalance = currentBalance + requestedMoney;
+
         profile.setBalance(updatedBalance);
 
         profileRepository.save(profile);

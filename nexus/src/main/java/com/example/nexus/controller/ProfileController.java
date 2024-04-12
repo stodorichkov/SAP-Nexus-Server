@@ -15,7 +15,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PatchMapping("/money")
-    public ResponseEntity<?> addMoney(@RequestParam AddMoneyRequest addMoneyRequest, HttpServletRequest request) {
+    public ResponseEntity<?> addMoney(@RequestBody AddMoneyRequest addMoneyRequest, HttpServletRequest request) {
         this.profileService.addMoney(addMoneyRequest, request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
