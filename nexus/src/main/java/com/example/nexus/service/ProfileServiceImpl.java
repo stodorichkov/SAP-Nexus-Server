@@ -6,7 +6,6 @@ import com.example.nexus.model.payload.request.AddMoneyRequest;
 import com.example.nexus.repository.ProfileRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +14,6 @@ public class ProfileServiceImpl implements ProfileService {
     private final JwtService jwtService;
     private final ProfileRepository profileRepository;
 
-    @SneakyThrows
     @Override
     public void addMoney(AddMoneyRequest addMoneyRequest, HttpServletRequest request) {
         final var token = this.jwtService.getTokenFromRequest(request);
