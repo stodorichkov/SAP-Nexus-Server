@@ -10,6 +10,7 @@ public class MessageConstants {
 
     // not found
     public static final String USER_NOT_FOUND = "User not found!";
+    public static final String PROFILE_NOT_FOUND = "Profile not found!";
     public static final String CATEGORY_NOT_FOUND = "Category not found!";
     public static final String ROLE_NOT_FOUNT = "Role not found!";
     public static final String CAMPAIGN_NOT_FOUND = "Campaign not found!";
