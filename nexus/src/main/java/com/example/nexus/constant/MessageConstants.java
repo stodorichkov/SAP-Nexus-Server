@@ -62,4 +62,7 @@ public class MessageConstants {
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";
+
+    // profile
+    public static final String INVALID_MONEY_NUMBER = "The number is below zero";
 }
