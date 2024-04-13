@@ -11,12 +11,30 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CampaignServiceImpl implements CampaignService {
     private final CampaignRepository campaignRepository;
     private final ProductRepository productRepository;
 
     @Override
+    @Transactional
+    public void startCampaign(String campaignName) {
+        final var campaign = this.campaignRepository.findByName(campaignName)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+        final var specification = ProductSpecifications.findByCampaignName(campaignName);
+        final var products = this.productRepository.findAll(specification);
+
+        products.forEach(product ->
+            product.setDiscount(product.getCampaignDiscount())
+        );
+
+        campaign.setIsActive(true);
+
+        this.productRepository.saveAll(products);
+        this.campaignRepository.save(campaign);
+    }
+
+    @Override
+    @Transactional
     public void stopCampaign(String campaignName) {
         final var campaign = this.campaignRepository.findByName(campaignName)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
@@ -25,6 +43,7 @@ public class CampaignServiceImpl implements CampaignService {
 
         products.forEach(product -> {
             product.setCampaign(null);
+            product.setCampaignDiscount(0);
             product.setDiscount(0);
         });
 
@@ -32,7 +51,7 @@ public class CampaignServiceImpl implements CampaignService {
         campaign.setEndDate(null);
         campaign.setIsActive(false);
 
-        productRepository.saveAll(products);
-        campaignRepository.save(campaign);
+        this.productRepository.saveAll(products);
+        this.campaignRepository.save(campaign);
     }
 }

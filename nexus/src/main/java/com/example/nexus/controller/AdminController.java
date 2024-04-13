@@ -2,6 +2,7 @@ package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.service.CampaignService;
 import com.example.nexus.service.CategoryService;
 import com.example.nexus.service.ProductService;
@@ -37,10 +38,29 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PatchMapping("/product/{productId}/campaign")
+    ResponseEntity<?> removeProductCampaign(@PathVariable Long productId) {
+        this.productService.removeProductCampaign(productId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/product")
+    Page<AdminProductResponse> getProducts(Pageable pageable) {
+        return this.productService.getProductsAdmin(pageable);
+    }
+
     @GetMapping("/categories")
     @ResponseStatus(HttpStatus.OK)
     List<String> getCategories() {
         return this.categoryService.getCategories();
+    }
+
+    @PatchMapping("/campaign/{campaignName}/start")
+    ResponseEntity<?> startCampaign(@PathVariable String campaignName) {
+        this.campaignService.startCampaign(campaignName);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PatchMapping("/campaign/{campaignName}/stop")
@@ -62,5 +82,10 @@ public class AdminController {
         userService.removeUserRole(username);
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/campaign/{campaignName}")
+    Page<AdminProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
+        return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
     }
 }

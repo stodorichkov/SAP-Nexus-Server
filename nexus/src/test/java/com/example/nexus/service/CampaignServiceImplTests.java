@@ -47,6 +47,29 @@ public class CampaignServiceImplTests {
         product.setName("Product");
         product.setCampaign(campaign);
         product.setDiscount(10);
+        product.setCampaignDiscount(20);
+    }
+
+    @Test
+    void starCampaign_campaignNotExist_expectNotFoundException() {
+        assertThrows(NotFoundException.class, () -> this.campaignService.startCampaign(campaign.getName()));
+    }
+
+    @Test
+    void startCampaign_campaignExist_expectStartCampaign() {
+        when(this.campaignRepository.findByName(campaign.getName())).thenReturn(Optional.of(campaign));
+        when(this.productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
+
+        this.campaignService.startCampaign(campaign.getName());
+
+        verify(this.campaignRepository).save(campaignCaptor.capture());
+        verify(this.productRepository).saveAll(productsCaptor.capture());
+
+        assertAll(
+                () -> assertEquals(campaign.getName(), campaignCaptor.getValue().getName()),
+                () -> assertTrue(campaignCaptor.getValue().getIsActive()),
+                () -> assertEquals(product.getCampaignDiscount(), productsCaptor.getValue().get(0).getDiscount())
+        );
     }
 
     @Test
@@ -65,11 +88,13 @@ public class CampaignServiceImplTests {
         verify(this.productRepository).saveAll(productsCaptor.capture());
 
         assertAll(
+                () -> assertEquals(campaign.getName(), campaignCaptor.getValue().getName()),
                 () -> assertNull(campaignCaptor.getValue().getStartDate()),
                 () -> assertNull(campaignCaptor.getValue().getEndDate()),
                 () -> assertFalse(campaignCaptor.getValue().getIsActive()),
                 () -> assertNull(productsCaptor.getValue().get(0).getCategory()),
-                () -> assertEquals(0, productsCaptor.getValue().get(0).getDiscount())
+                () -> assertEquals(0, productsCaptor.getValue().get(0).getDiscount()),
+                () -> assertEquals(0, productsCaptor.getValue().get(0).getCampaignDiscount())
         );
     }
 }
