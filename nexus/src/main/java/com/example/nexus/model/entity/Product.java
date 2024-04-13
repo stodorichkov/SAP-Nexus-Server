@@ -27,6 +27,8 @@ public class Product {
 
     private Integer discount;
 
+    private Integer campaignDiscount;
+
     private String imageLink;
 
     private Integer availability;

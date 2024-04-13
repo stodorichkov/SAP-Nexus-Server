@@ -47,11 +47,17 @@ public class MessageConstants {
     public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
             "positive or zero!";
 
-    //campaign
+    // campaign
     public static final String INVALID_START_DATE = "Invalid format for start date. Start date must be present or" +
             " future!";
     public static final String INVALID_END_DATE = "Invalid format for end date. End date must be greater than or" +
             " equal to the start date";
+
+    // sale
+    public static final String PRODUCT_UNAVAILABLE = "Sorry, the requested product is currently unavailable." +
+            " Please check back later or explore our other offerings";
+    public static final String NOT_ENOUGH_MONEY = "Sorry, not enough funds to complete the purchase." +
+            " Please charge more money in your account.";
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";

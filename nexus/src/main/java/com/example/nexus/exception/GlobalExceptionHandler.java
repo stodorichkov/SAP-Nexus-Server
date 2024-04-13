@@ -78,6 +78,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<String> handle(PaymentException ex) {
+        log.error(ex.getMessage());
+        log.info(ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
         log.error(ex.getMessage());
