@@ -10,6 +10,7 @@ public record AdminProductResponse(
     Integer availability,
     Float price,
     Float minPrice,
-    Integer discount
+    Integer discount,
+    Integer campaignDiscount
 ) {
 }

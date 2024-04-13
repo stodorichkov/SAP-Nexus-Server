@@ -33,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
         product.setImageLink(imageUrl);
         product.setDiscount(0);
+        product.setCampaignDiscount(0);
 
         this.productRepository.save(product);
     }
@@ -45,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
         product.setCampaign(null);
         product.setDiscount(0);
+        product.setCampaignDiscount(0);
 
         this.productRepository.save(product);
     }

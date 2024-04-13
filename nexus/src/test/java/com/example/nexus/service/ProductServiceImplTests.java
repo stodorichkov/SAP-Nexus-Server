@@ -67,6 +67,7 @@ public class ProductServiceImplTests {
         product.setPrice(100f);
         product.setMinPrice(90f);
         product.setDiscount(10);
+        product.setCampaignDiscount(20);
         product.setImageLink("url");
 
         final var file = new MockMultipartFile(
@@ -108,6 +109,7 @@ public class ProductServiceImplTests {
                 10,
                 100f,
                 100f,
+                0,
                 0
         );
 
@@ -167,6 +169,7 @@ public class ProductServiceImplTests {
         assertAll(
                 () -> assertNull(productCaptor.getValue().getCampaign()),
                 () -> assertEquals(0, productCaptor.getValue().getDiscount()),
+                () -> assertEquals(0, productCaptor.getValue().getCampaignDiscount()),
                 () -> assertEquals(product.getId(), productCaptor.getValue().getId()),
                 () -> assertEquals(product.getName(), productCaptor.getValue().getName()),
                 () -> assertEquals(product.getBrand(), productCaptor.getValue().getBrand()),

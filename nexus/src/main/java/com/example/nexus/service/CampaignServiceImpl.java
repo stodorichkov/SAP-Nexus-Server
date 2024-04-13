@@ -2,7 +2,6 @@ package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
-import com.example.nexus.model.payload.request.StartCampaignRequest;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.ProductSpecifications;
@@ -12,27 +11,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CampaignServiceImpl implements CampaignService {
     private final CampaignRepository campaignRepository;
     private final ProductRepository productRepository;
 
     @Override
-    public void startCampaign(StartCampaignRequest startCampaignRequest) {
-        final var campaign = this.campaignRepository.findByName(startCampaignRequest.name())
+    @Transactional
+    public void startCampaign(String campaignName) {
+        final var campaign = this.campaignRepository.findByName(campaignName)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+        final var specification = ProductSpecifications.findByCampaignName(campaignName);
+        final var products = this.productRepository.findAll(specification);
 
-        campaign.setStartDate(startCampaignRequest.startDate());
-        campaign.setEndDate(startCampaignRequest.endDate());
+        products.forEach(product ->
+            product.setDiscount(product.getCampaignDiscount())
+        );
+
         campaign.setIsActive(true);
 
+        this.productRepository.saveAll(products);
         this.campaignRepository.save(campaign);
     }
 
     @Override
+    @Transactional
     public void stopCampaign(String campaignName) {
-        System.out.println(campaignName);
-
         final var campaign = this.campaignRepository.findByName(campaignName)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
         final var specification = ProductSpecifications.findByCampaignName(campaignName);
@@ -40,6 +43,7 @@ public class CampaignServiceImpl implements CampaignService {
 
         products.forEach(product -> {
             product.setCampaign(null);
+            product.setCampaignDiscount(0);
             product.setDiscount(0);
         });
 
