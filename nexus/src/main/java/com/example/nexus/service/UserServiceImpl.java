@@ -1,6 +1,9 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.AdminConstants;
+import com.example.nexus.constant.MessageConstants;
+import com.example.nexus.constant.RoleConstants;
+import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.UserMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.User;
@@ -48,5 +51,41 @@ public class UserServiceImpl implements UserService {
         return this.userRepository
                 .findAll(pageable)
                 .map(this.userMapper::userToUserResponse);
+    }
+
+    @Override
+    public void addUserRole(String username) {
+        final var user = this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.USER_NOT_FOUND));
+
+        final var desiredRole = this.roleRepository.findByName(RoleConstants.ADMIN)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.ROLE_NOT_FOUNT));
+
+        if (user.getRoles().stream().anyMatch(role -> role.getName()
+                .equals(desiredRole.getName()))) {
+            return;
+        }
+
+        user.getRoles().add(desiredRole);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public void removeUserRole(String username) {
+        final var user = this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.USER_NOT_FOUND));
+
+        final var desiredRole = this.roleRepository.findByName(RoleConstants.ADMIN)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.ROLE_NOT_FOUNT));
+
+        if (user.getRoles().stream().noneMatch(role -> role.getName()
+                .equals(desiredRole.getName()))) {
+            return;
+        }
+
+        user.getRoles().removeIf(role -> role.getName().equals(RoleConstants.ADMIN));
+
+        userRepository.save(user);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.nexus.controller;
 
+import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.service.CampaignService;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.nexus.model.payload.response.UserResponse;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
@@ -66,6 +66,20 @@ public class AdminController {
     @PatchMapping("/campaign/{campaignName}/stop")
     ResponseEntity<?> stopCampaign(@PathVariable String campaignName) {
         this.campaignService.stopCampaign(campaignName);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PatchMapping("/role/addition/{username}")
+    public ResponseEntity<?> addUserRole(@PathVariable String username) {
+        userService.addUserRole(username);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PatchMapping("/role/removal/{username}")
+    public ResponseEntity<?> removeUserRole(@PathVariable String username) {
+        userService.removeUserRole(username);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
