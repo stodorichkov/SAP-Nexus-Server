@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
         final var username = this.getUsernameFromAuthRequest(request);
 
-        final var profile = this.profileRepository.findByUser_Username(username)
+        final var profile = this.profileRepository.findByUserUsername(username)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PROFILE_NOT_FOUND));
 
         return this.profileMapper.profileToProfileInfoResponse(profile);

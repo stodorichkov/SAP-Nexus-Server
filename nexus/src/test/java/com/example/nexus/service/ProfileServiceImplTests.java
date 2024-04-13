@@ -16,7 +16,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProfileServiceImplTests {
     private static Profile profile;
-    private static AddMoneyRequest addMoneyRequest;
 
     @Mock
     private JwtService jwtService;
@@ -38,7 +37,7 @@ class ProfileServiceImplTests {
         when(jwtService.getUsernameFromToken("dummyToken")).thenReturn("testUser");
         when(profileRepository.findByUserUsername("testUser")).thenReturn(java.util.Optional.of(profile));
 
-        addMoneyRequest = new AddMoneyRequest(50.0F);
+        AddMoneyRequest addMoneyRequest = new AddMoneyRequest(50.0F);
 
         profileService.addMoney(addMoneyRequest, request);
 

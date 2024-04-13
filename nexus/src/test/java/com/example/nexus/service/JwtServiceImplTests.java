@@ -27,7 +27,7 @@ public class JwtServiceImplTests {
     private JwtServiceImpl jwtService;
 
     @BeforeAll
-    static void serUp() {
+    static void setUp() {
         username = "username";
         final  var authority = new SimpleGrantedAuthority("USER");
         authentication = new TestingAuthenticationToken(username, null, List.of(authority));

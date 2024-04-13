@@ -74,7 +74,6 @@ public class FileServiceImplTests {
             );
 
             when(this.imageConfig.getDir()).thenReturn("/path/to/images");
-            when(this.imageConfig.getBaseUrl()).thenReturn(baseUrl);
 
             final var result = this.fileService.upload(file);
 
