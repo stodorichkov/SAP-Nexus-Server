@@ -34,7 +34,7 @@ public class UserDetailsServiceImplTests {
     private UserDetailsServiceImpl userDetailsService;
 
     @BeforeAll
-    static void serUp() {
+    static void setUp() {
         username = "user";
         password = "password";
 

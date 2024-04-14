@@ -14,10 +14,7 @@ import com.example.nexus.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -111,17 +108,17 @@ public class UserServiceImplTests {
 
     @Test
     public void addUserRole_userNotExist_expectNotFoundException() {
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.empty());
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> this.userService.addUserRole("username"));
+        assertThrows(NotFoundException.class, () -> this.userService.addUserRole("Username"));
     }
 
     @Test
     public void addUserRole_roleNotExist_expectNotFoundException() {
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(new User()));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(new User()));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> this.userService.addUserRole("username"));
+        assertThrows(NotFoundException.class, () -> this.userService.addUserRole("Username"));
     }
 
     @Test
@@ -130,10 +127,10 @@ public class UserServiceImplTests {
         role.setName("ADMIN");
         role.setId(2L);
 
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(user));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.of(role));
 
-        this.userService.addUserRole("username");
+        this.userService.addUserRole("Username");
 
         verify(this.userRepository, never()).save(any());
     }
@@ -143,10 +140,10 @@ public class UserServiceImplTests {
         Role newRole = new Role();
         newRole.setName("ADMIN");
 
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(user));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.of(newRole));
 
-        this.userService.addUserRole("username");
+        this.userService.addUserRole("Username");
 
         verify(this.userRepository).save(userCaptor.capture());
         assertEquals(user, userCaptor.getValue());
@@ -154,17 +151,17 @@ public class UserServiceImplTests {
 
     @Test
     public void removeUserRole_userNotExist_expectNotFoundException() {
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.empty());
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> this.userService.removeUserRole("username"));
+        assertThrows(NotFoundException.class, () -> this.userService.removeUserRole("Username"));
     }
 
     @Test
     public void removeUserRole_roleNotExist_expectNotFoundException() {
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(new User()));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(new User()));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> this.userService.removeUserRole("username"));
+        assertThrows(NotFoundException.class, () -> this.userService.removeUserRole("Username"));
     }
 
     @Test
@@ -172,10 +169,10 @@ public class UserServiceImplTests {
         Role newRole = new Role();
         newRole.setName("ADMIN");
 
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(user));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.of(newRole));
 
-        this.userService.removeUserRole("username");
+        this.userService.removeUserRole("Username");
 
         verify(this.userRepository, never()).save(any());
     }
@@ -186,10 +183,10 @@ public class UserServiceImplTests {
         newRole.setName("ADMIN");
         user.getRoles().add(newRole);
 
-        when(this.userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+        when(this.userRepository.findByUsername("Username")).thenReturn(Optional.of(user));
         when(this.roleRepository.findByName(RoleConstants.ADMIN)).thenReturn(Optional.of(newRole));
 
-        this.userService.removeUserRole("username");
+        this.userService.removeUserRole("Username");
 
         user.getRoles().remove(newRole);
 

@@ -1,6 +1,7 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.AddMoneyRequest;
+import com.example.nexus.model.payload.response.ProfileResponse;
 import com.example.nexus.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,5 +19,12 @@ public class ProfileController {
     public ResponseEntity<?> addMoney(@RequestBody AddMoneyRequest addMoneyRequest, HttpServletRequest request) {
         this.profileService.addMoney(addMoneyRequest, request);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<ProfileResponse> getUserInfo(HttpServletRequest request) {
+        final var profileResponse = this.profileService.getProfileInfo(request);
+
+        return ResponseEntity.ok(profileResponse);
     }
 }
