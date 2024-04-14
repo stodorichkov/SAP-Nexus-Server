@@ -5,7 +5,6 @@ import com.example.nexus.model.payload.request.RegisterRequest;
 import com.example.nexus.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,20 +12,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/token")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<String> login(@RequestBody AuthenticationRequest authenticationRequest) {
         final var token = this.authService.login(authenticationRequest);
-        final var headers = new HttpHeaders();
-
-        headers.setBearerAuth(token);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .headers(headers)
-                .build();
+                .body(token);
     }
 
     @PostMapping("/registration")
