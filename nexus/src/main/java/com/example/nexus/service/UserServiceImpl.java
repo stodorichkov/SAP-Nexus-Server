@@ -4,16 +4,13 @@ import com.example.nexus.constant.AdminConstants;
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.constant.RoleConstants;
 import com.example.nexus.exception.NotFoundException;
-import com.example.nexus.mapper.ProfileMapper;
 import com.example.nexus.mapper.UserMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.User;
-import com.example.nexus.model.payload.response.ProfileInfoResponse;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
 import com.example.nexus.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +25,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final JwtService jwtService;
-    private final ProfileMapper profileMapper;
 
     @Override
     public void seedAdmin() {
@@ -92,21 +87,5 @@ public class UserServiceImpl implements UserService {
         user.getRoles().removeIf(role -> role.getName().equals(RoleConstants.ADMIN));
 
         userRepository.save(user);
-    }
-
-    @Override
-    public ProfileInfoResponse getProfileInfo(HttpServletRequest request) {
-        final var username = this.getUsernameFromAuthRequest(request);
-
-        final var profile = this.profileRepository.findByUserUsername(username)
-                .orElseThrow(() -> new NotFoundException(MessageConstants.PROFILE_NOT_FOUND));
-
-        return this.profileMapper.profileToProfileInfoResponse(profile);
-    }
-
-    private String getUsernameFromAuthRequest(HttpServletRequest request) {
-        final var token = this.jwtService.getTokenFromRequest(request);
-
-        return this.jwtService.getUsernameFromToken(token);
     }
 }

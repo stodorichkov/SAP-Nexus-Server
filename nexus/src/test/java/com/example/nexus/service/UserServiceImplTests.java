@@ -3,17 +3,14 @@ package com.example.nexus.service;
 import com.example.nexus.constant.AdminConstants;
 import com.example.nexus.constant.RoleConstants;
 import com.example.nexus.exception.NotFoundException;
-import com.example.nexus.mapper.ProfileMapper;
 import com.example.nexus.mapper.UserMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.Role;
 import com.example.nexus.model.entity.User;
-import com.example.nexus.model.payload.response.ProfileInfoResponse;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.RoleRepository;
 import com.example.nexus.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,11 +26,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTests {
-    private static Profile profile;
     private static User user;
     private static Role role;
     private static UserResponse userResponse;
-    private static ProfileInfoResponse profileInfoResponse;
 
     @Mock
     private UserRepository userRepository;
@@ -45,10 +40,6 @@ public class UserServiceImplTests {
     private PasswordEncoder passwordEncoder;
     @Mock
     private UserMapper userMapper;
-    @Mock
-    private JwtService jwtService;
-    @Mock
-    private ProfileMapper profileMapper;
     @Captor
     private ArgumentCaptor<Profile> profileCaptor;
     @Captor
@@ -68,23 +59,9 @@ public class UserServiceImplTests {
         user.setPassword("Password");
         user.getRoles().add(role);
 
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setFirstName("firstName");
-        profile.setLastName("lastName");
-        profile.setBalance(0.0f);
-        profile.setUser(user);
-
         userResponse = new UserResponse(
                 "Username",
                 List.of("USER")
-        );
-
-        profileInfoResponse = new ProfileInfoResponse(
-                "Username",
-                "firstName",
-                "lastName",
-                0.0f
         );
     }
 
@@ -215,24 +192,5 @@ public class UserServiceImplTests {
 
         verify(this.userRepository).save(userCaptor.capture());
         assertEquals(user, userCaptor.getValue());
-    }
-
-    @Test
-    public void getUsernameFromAuthRequest_profileNotFound_expectNotFoundException() {
-        when(this.jwtService.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn("token");
-        when(this.jwtService.getUsernameFromToken(any(String.class))).thenReturn("Username");
-        when(this.profileRepository.findByUserUsername("Username")).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> this.userService
-                .getProfileInfo(Mockito.mock(HttpServletRequest.class)));
-    }
-    @Test
-    public void getUsernameFromAuthRequest_everythingIsFine_GetUserInfo() {
-        when(this.jwtService.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn("token");
-        when(this.jwtService.getUsernameFromToken(any(String.class))).thenReturn("Username");
-        when(this.profileRepository.findByUserUsername("Username")).thenReturn(Optional.of(profile));
-        when(this.profileMapper.profileToProfileInfoResponse(profile)).thenReturn(profileInfoResponse);
-
-        assertEquals(profileInfoResponse, this.userService.getProfileInfo(Mockito.mock(HttpServletRequest.class)));
     }
 }
