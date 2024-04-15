@@ -18,6 +18,7 @@ public class MessageConstants {
 
     // exists
     public static final String USER_EXISTS = "User already exists!";
+    public static final String CAMPAIGN_EXISTS = "Campaign already exists!";
 
     // fields
     public static final String FIELD_CANNOT_BE_BLANK = "Field can not be blank!";
@@ -59,7 +60,6 @@ public class MessageConstants {
             " Please check back later or explore our other offerings";
     public static final String NOT_ENOUGH_MONEY = "Sorry, not enough funds to complete the purchase." +
             " Please charge more money in your account.";
-    public static final String INVALID_SALE_DATE = "Start date must be before end date";
     public static final String NO_TURNOVER_FOR_THIS_PERIOD = "Sorry, there is no turnover for this period";
 
     // images
@@ -67,4 +67,7 @@ public class MessageConstants {
 
     // profile
     public static final String INVALID_MONEY_NUMBER = "The number is below zero";
+
+    // dates
+    public static final String INVALID_DATES = "Start date must be before end date";
 }

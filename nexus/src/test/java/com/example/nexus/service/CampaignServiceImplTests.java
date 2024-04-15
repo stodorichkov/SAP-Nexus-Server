@@ -1,11 +1,14 @@
 package com.example.nexus.service;
 
+import com.example.nexus.exception.CampaignAlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
+import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Product;
+import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,12 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CampaignServiceImplTests {
@@ -29,6 +32,8 @@ public class CampaignServiceImplTests {
     @Mock
     private CampaignRepository campaignRepository;
     @Mock
+    private CampaignMapper campaignMapper;
+    @Mock
     private ProductRepository productRepository;
     @Captor
     private ArgumentCaptor<List<Product>> productsCaptor;
@@ -37,8 +42,8 @@ public class CampaignServiceImplTests {
     @InjectMocks
     private CampaignServiceImpl campaignService;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         campaign = new Campaign();
         campaign.setName("Campaign");
         campaign.setIsActive(false);
@@ -95,6 +100,37 @@ public class CampaignServiceImplTests {
                 () -> assertNull(productsCaptor.getValue().get(0).getCategory()),
                 () -> assertEquals(0, productsCaptor.getValue().get(0).getDiscount()),
                 () -> assertEquals(0, productsCaptor.getValue().get(0).getCampaignDiscount())
+        );
+    }
+
+    @Test
+    void addCampaign_campaignExist_expectCampaignAlreadyExistsException() {
+        when(this.campaignMapper.campaignRequestToCampaign(any(CampaignRequest.class)))
+                .thenReturn(campaign);
+        when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.of(campaign));
+
+        assertThrows(CampaignAlreadyExistsException.class,
+                () -> this.campaignService.addCampaign(mock(CampaignRequest.class)));
+    }
+
+    @Test
+    void addCampaign_EverythingIsFine_expectSaveNewCampaign() {
+        campaign.setStartDate(LocalDate.parse("2024-01-01"));
+        campaign.setEndDate(LocalDate.parse("2024-12-31"));
+
+        when(this.campaignMapper.campaignRequestToCampaign(any(CampaignRequest.class)))
+                .thenReturn(campaign);
+        when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.empty());
+
+        this.campaignService.addCampaign(mock(CampaignRequest.class));
+
+        verify(this.campaignRepository).save(campaignCaptor.capture());
+
+        assertAll(
+                () -> assertEquals(campaign.getName(), campaignCaptor.getValue().getName()),
+                () -> assertEquals(campaign.getStartDate(), campaignCaptor.getValue().getStartDate()),
+                () -> assertEquals(campaign.getEndDate(), campaignCaptor.getValue().getEndDate()),
+                () -> assertEquals(campaign.getIsActive(), campaignCaptor.getValue().getIsActive())
         );
     }
 }

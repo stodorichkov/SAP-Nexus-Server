@@ -61,8 +61,8 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public Float getTurnover(TurnoverRequest request) {
-        return this.saleRepository.findSumByStartAndEndDate(request.startDate(), request.endDate())
+    public Float getTurnover(TurnoverRequest turnoverRequest) {
+        return this.saleRepository.findSumByStartAndEndDate(turnoverRequest.startDate(), turnoverRequest.endDate())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.NO_TURNOVER_FOR_THIS_PERIOD));
     }
 }

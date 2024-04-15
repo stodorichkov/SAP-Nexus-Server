@@ -1,5 +1,6 @@
 package com.example.nexus.controller;
 
+import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
@@ -89,9 +90,16 @@ public class AdminController {
     }
 
     @GetMapping("/turnover")
-    public ResponseEntity<Float> getTurnover(TurnoverRequest request) {
-        Float turnover = this.saleService.getTurnover(request);
+    public ResponseEntity<Float> getTurnover(TurnoverRequest turnoverRequest) {
+        Float turnover = this.saleService.getTurnover(turnoverRequest);
 
         return ResponseEntity.ok(turnover);
+    }
+
+    @PostMapping("/campaign")
+    public ResponseEntity<?> addCampaign(@RequestBody CampaignRequest campaignRequest) {
+        this.campaignService.addCampaign(campaignRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

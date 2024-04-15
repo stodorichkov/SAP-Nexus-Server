@@ -1,7 +1,11 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
+import com.example.nexus.exception.CampaignAlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
+import com.example.nexus.mapper.CampaignMapper;
+import com.example.nexus.model.entity.Campaign;
+import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.ProductSpecifications;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CampaignServiceImpl implements CampaignService {
     private final CampaignRepository campaignRepository;
     private final ProductRepository productRepository;
+    private final CampaignMapper campaignMapper;
 
     @Override
     @Transactional
@@ -53,5 +58,16 @@ public class CampaignServiceImpl implements CampaignService {
 
         this.productRepository.saveAll(products);
         this.campaignRepository.save(campaign);
+    }
+
+    @Override
+    public void addCampaign(CampaignRequest campaignRequest) {
+        Campaign newCampaign = this.campaignMapper.campaignRequestToCampaign(campaignRequest);
+
+        if (this.campaignRepository.findByName(newCampaign.getName()).isPresent()) {
+            throw new CampaignAlreadyExistsException(MessageConstants.CAMPAIGN_EXISTS);
+        }
+
+        campaignRepository.save(newCampaign);
     }
 }

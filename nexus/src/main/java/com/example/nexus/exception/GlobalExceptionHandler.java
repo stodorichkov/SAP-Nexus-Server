@@ -31,6 +31,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
+    @ExceptionHandler(CampaignAlreadyExistsException.class)
+    public ResponseEntity<String> handle(CampaignAlreadyExistsException ex) {
+        log.error(ex.getMessage());
+        log.info(ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
     @ExceptionHandler({UnauthorizedException.class, AuthenticationException.class})
     public ResponseEntity<String> handle(Exception ex) {
         log.error(ex.getMessage());
