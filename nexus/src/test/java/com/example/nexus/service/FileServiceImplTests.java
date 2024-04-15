@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +75,7 @@ public class FileServiceImplTests {
             );
 
             when(this.imageConfig.getDir()).thenReturn("/path/to/images");
-            when(this.imageConfig.getBaseUrl()).thenReturn(baseUrl);
+            lenient().when(this.imageConfig.getBaseUrl()).thenReturn(baseUrl);
 
             final var result = this.fileService.upload(file);
 

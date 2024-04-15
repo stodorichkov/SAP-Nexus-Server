@@ -90,7 +90,7 @@ public class AdminController {
 
     @PostMapping("/turnover")
     public ResponseEntity<Float> getTurnover(@RequestBody TurnoverRequest request) {
-        Float turnover = saleService.getTurnover(request);
+        Float turnover = this.saleService.getTurnover(request);
 
         return ResponseEntity.ok(turnover);
     }
