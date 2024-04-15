@@ -4,6 +4,7 @@ import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.PaymentException;
 import com.example.nexus.model.entity.Sale;
+import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.SaleRepository;
@@ -57,5 +58,11 @@ public class SaleServiceImpl implements SaleService {
         this.productRepository.save(product);
         this.profileRepository.save(profile);
         this.saleRepository.save(sale);
+    }
+
+    @Override
+    public Float getTurnover(TurnoverRequest request) {
+        return this.saleRepository.findSumByStartAndEndDate(request.startDate(), request.endDate())
+                .orElseThrow(() -> new NotFoundException(MessageConstants.NO_TURNOVER_FOR_THIS_PERIOD));
     }
 }

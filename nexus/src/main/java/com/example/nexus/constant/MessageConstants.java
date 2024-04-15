@@ -59,6 +59,8 @@ public class MessageConstants {
             " Please check back later or explore our other offerings";
     public static final String NOT_ENOUGH_MONEY = "Sorry, not enough funds to complete the purchase." +
             " Please charge more money in your account.";
+    public static final String INVALID_SALE_DATE = "Start date must be before end date";
+    public static final String NO_TURNOVER_FOR_THIS_PERIOD = "Sorry, there is no turnover for this period";
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";

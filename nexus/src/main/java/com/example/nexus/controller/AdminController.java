@@ -1,12 +1,10 @@
 package com.example.nexus.controller;
 
+import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
-import com.example.nexus.service.CampaignService;
-import com.example.nexus.service.CategoryService;
-import com.example.nexus.service.ProductService;
-import com.example.nexus.service.UserService;
+import com.example.nexus.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +22,7 @@ public class AdminController {
     private final CategoryService categoryService;
     private final UserService userService;
     private final CampaignService campaignService;
+    private final SaleService saleService;
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -87,5 +86,12 @@ public class AdminController {
     @GetMapping("/campaign/{campaignName}")
     Page<AdminProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
         return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
+    }
+
+    @GetMapping("/turnover")
+    public ResponseEntity<Float> getTurnover(TurnoverRequest request) {
+        Float turnover = this.saleService.getTurnover(request);
+
+        return ResponseEntity.ok(turnover);
     }
 }
