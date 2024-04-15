@@ -88,8 +88,8 @@ public class AdminController {
         return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
     }
 
-    @PostMapping("/turnover")
-    public ResponseEntity<Float> getTurnover(@RequestBody TurnoverRequest request) {
+    @GetMapping("/turnover")
+    public ResponseEntity<Float> getTurnover(TurnoverRequest request) {
         Float turnover = this.saleService.getTurnover(request);
 
         return ResponseEntity.ok(turnover);

@@ -7,6 +7,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface SaleRepository extends JpaRepository<Sale, Long> {
-    @Query("SELECT SUM(s.price) FROM Sale s WHERE s.saleDate >= ?1 AND s.saleDate <= ?2")
+    @Query("SELECT SUM(s.price) FROM Sale s WHERE s.saleDate BETWEEN ?1 AND ?2")
     Optional<Float> findSumByStartAndEndDate(LocalDate startDate, LocalDate endDate);
 }
