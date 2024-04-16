@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 public class CampaignServiceImplTests {
     private static Campaign campaign;
     private static Product product;
+    private static CampaignRequest campaignRequest;
 
     @Mock
     private CampaignRepository campaignRepository;
@@ -53,6 +54,12 @@ public class CampaignServiceImplTests {
         product.setCampaign(campaign);
         product.setDiscount(10);
         product.setCampaignDiscount(20);
+
+        campaignRequest = new CampaignRequest(
+                "Campaign",
+                LocalDate.parse("2024-01-01"),
+                LocalDate.parse("2024-12-31")
+        );
     }
 
     @Test
@@ -105,12 +112,10 @@ public class CampaignServiceImplTests {
 
     @Test
     void addCampaign_campaignExist_expectCampaignAlreadyExistsException() {
-        when(this.campaignMapper.campaignRequestToCampaign(any(CampaignRequest.class)))
-                .thenReturn(campaign);
         when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.of(campaign));
 
         assertThrows(CampaignAlreadyExistsException.class,
-                () -> this.campaignService.addCampaign(mock(CampaignRequest.class)));
+                () -> this.campaignService.addCampaign(campaignRequest));
     }
 
     @Test
@@ -118,11 +123,11 @@ public class CampaignServiceImplTests {
         campaign.setStartDate(LocalDate.parse("2024-01-01"));
         campaign.setEndDate(LocalDate.parse("2024-12-31"));
 
+        when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.empty());
         when(this.campaignMapper.campaignRequestToCampaign(any(CampaignRequest.class)))
                 .thenReturn(campaign);
-        when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.empty());
 
-        this.campaignService.addCampaign(mock(CampaignRequest.class));
+        this.campaignService.addCampaign(campaignRequest);
 
         verify(this.campaignRepository).save(campaignCaptor.capture());
 
