@@ -48,6 +48,7 @@ public class MessageConstants {
             "digits, and spaces.";
     public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
             "positive or zero!";
+    public static final String INVALID_DISCOUNT = "Invalid format for discount. Discount must be between 0 and 100";
 
     // campaign
     public static final String INVALID_START_DATE = "Invalid format for start date. Start date must be present or" +
@@ -67,7 +68,4 @@ public class MessageConstants {
 
     // profile
     public static final String INVALID_MONEY_NUMBER = "The number is below zero";
-
-    // dates
-    public static final String INVALID_DATES = "Start date must be before end date";
 }
