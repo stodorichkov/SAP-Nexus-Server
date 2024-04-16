@@ -11,6 +11,6 @@ public record TurnoverRequest(
         @RequestParam
         LocalDate endDate
 ) {
-        @AssertTrue(message = MessageConstants.INVALID_SALE_DATE)
+        @AssertTrue(message = MessageConstants.INVALID_DATES)
         public boolean isStartDateBeforeEndDate() { return startDate.isBefore(endDate); }
 }
