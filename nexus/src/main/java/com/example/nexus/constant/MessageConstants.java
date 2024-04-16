@@ -70,4 +70,5 @@ public class MessageConstants {
 
     // dates
     public static final String INVALID_DATES = "Start date must be before end date";
+    public static final String INVALID_DISCOUNT = "The discount is not between 0 and 100";
 }

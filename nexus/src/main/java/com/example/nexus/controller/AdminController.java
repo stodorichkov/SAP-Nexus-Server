@@ -24,6 +24,7 @@ public class AdminController {
     private final UserService userService;
     private final CampaignService campaignService;
     private final SaleService saleService;
+    private final EditProductService EditProductService;
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -101,5 +102,12 @@ public class AdminController {
         this.campaignService.addCampaign(campaignRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/product/{productId}")
+    public ResponseEntity<?> editProduct(@PathVariable Long productId, @Valid @ModelAttribute ProductRequest productRequest) {
+        this.EditProductService.editProduct(productId, productRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

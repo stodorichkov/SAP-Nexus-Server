@@ -26,6 +26,10 @@ public record ProductRequest(
         @PositiveOrZero(message = MessageConstants.INVALID_AVAILABILITY)
         int availability,
 
+        @Min(value = 0, message = MessageConstants.INVALID_DISCOUNT)
+        @Max(value = 100, message = MessageConstants.INVALID_DISCOUNT)
+        Integer discount,
+
         MultipartFile image
 ) {
     @AssertTrue(message = MessageConstants.INVALID_MIN_PRICE)

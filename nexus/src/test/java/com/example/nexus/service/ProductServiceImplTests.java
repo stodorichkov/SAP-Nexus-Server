@@ -85,6 +85,7 @@ public class ProductServiceImplTests {
                 100f,
                 100f,
                 20,
+                10,
                 file
         );
 
