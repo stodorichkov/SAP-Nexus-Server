@@ -23,16 +23,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ExceptionHandler({UserAlreadyExistsException.class, CampaignAlreadyExistsException.class})
     public ResponseEntity<String> handle(UserAlreadyExistsException ex) {
-        log.error(ex.getMessage());
-        log.info(ex.getMessage(), ex);
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(CampaignAlreadyExistsException.class)
-    public ResponseEntity<String> handle(CampaignAlreadyExistsException ex) {
         log.error(ex.getMessage());
         log.info(ex.getMessage(), ex);
 

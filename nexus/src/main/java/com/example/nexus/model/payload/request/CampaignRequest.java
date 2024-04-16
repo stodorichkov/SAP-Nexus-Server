@@ -7,8 +7,7 @@ import java.time.LocalDate;
 public record CampaignRequest(
         String name,
         LocalDate startDate,
-        LocalDate endDate,
-        Boolean isActive
+        LocalDate endDate
 ) {
     @AssertTrue(message = MessageConstants.INVALID_DATES)
     public boolean isStartDateBeforeEndDate() { return startDate.isBefore(endDate); }
