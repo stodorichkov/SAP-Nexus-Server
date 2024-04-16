@@ -2,6 +2,7 @@ package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.model.payload.request.TurnoverRequest;
+import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
@@ -101,5 +102,11 @@ public class AdminController {
         this.campaignService.addCampaign(campaignRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/campaigns")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<CampaignResponse> getCampaigns(Pageable pageable) {
+        return this.campaignService.getCampaigns(pageable);
     }
 }

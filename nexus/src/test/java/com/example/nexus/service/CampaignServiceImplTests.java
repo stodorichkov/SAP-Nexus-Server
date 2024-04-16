@@ -6,6 +6,7 @@ import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.CampaignRequest;
+import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +32,7 @@ public class CampaignServiceImplTests {
     private static Campaign campaign;
     private static Product product;
     private static CampaignRequest campaignRequest;
+    private static CampaignResponse campaignResponse;
 
     @Mock
     private CampaignRepository campaignRepository;
@@ -59,6 +63,13 @@ public class CampaignServiceImplTests {
                 "Campaign",
                 LocalDate.parse("2024-01-01"),
                 LocalDate.parse("2024-12-31")
+        );
+
+        campaignResponse = new CampaignResponse(
+                "Campaign",
+                LocalDate.parse("2024-01-01"),
+                LocalDate.parse("2024-12-31"),
+                false
         );
     }
 
@@ -137,5 +148,21 @@ public class CampaignServiceImplTests {
                 () -> assertEquals(campaign.getEndDate(), campaignCaptor.getValue().getEndDate()),
                 () -> assertEquals(campaign.getIsActive(), campaignCaptor.getValue().getIsActive())
         );
+    }
+
+    @Test
+    void getCampaigns_expectPage() {
+        campaign.setStartDate(LocalDate.parse("2024-01-01"));
+        campaign.setEndDate(LocalDate.parse("2024-12-31"));
+
+        final var campaignPage = new PageImpl<>(List.of(campaign));
+        final var pageable = Pageable.unpaged();
+
+        when(this.campaignRepository.findAll(eq(pageable))).thenReturn(campaignPage);
+        when(this.campaignMapper.campaignToCampaignResponse(any(Campaign.class))).thenReturn(campaignResponse);
+
+        final var result = this.campaignService.getCampaigns(pageable);
+
+        assertEquals(List.of(campaignResponse), result.getContent());
     }
 }
