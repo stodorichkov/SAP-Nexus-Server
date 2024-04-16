@@ -118,4 +118,10 @@ public class AdminController {
     public Page<CampaignResponse> getCampaigns(Pageable pageable) {
         return this.campaignService.getCampaigns(pageable);
     }
+
+    @GetMapping("/campaigns/list")
+    @ResponseStatus(HttpStatus.OK)
+    public List<String> getCampaignsList() {
+        return this.campaignService.getCampaignsList();
+    }
 }
