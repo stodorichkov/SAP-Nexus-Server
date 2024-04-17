@@ -18,5 +18,5 @@ public class Campaign {
 
     private LocalDate endDate;
 
-    private Boolean isActive;
+    private Boolean isActive = false;
 }

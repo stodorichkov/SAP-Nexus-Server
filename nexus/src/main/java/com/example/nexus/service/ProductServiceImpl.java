@@ -3,9 +3,11 @@ package com.example.nexus.service;
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
+import com.example.nexus.model.payload.request.ProductCampaignRequest;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
+import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.ProductSpecifications;
@@ -21,6 +23,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
+    private final CampaignRepository campaignRepository;
 
     @Override
     public void addProduct(ProductRequest productRequest) {
@@ -47,6 +50,25 @@ public class ProductServiceImpl implements ProductService {
         product.setCampaign(null);
         product.setDiscount(0);
         product.setCampaignDiscount(0);
+
+        this.productRepository.save(product);
+    }
+
+    @Override
+    public void addProductCampaign(Long productId, ProductCampaignRequest productCampaignRequest) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        final var campaign = this.campaignRepository
+                .findByName(productCampaignRequest.campaignName())
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+
+        product.setCampaign(campaign);
+        product.setCampaignDiscount(productCampaignRequest.campaignDiscount());
+        if (campaign.getIsActive()) {
+            product.setDiscount(productCampaignRequest.campaignDiscount());
+        }
 
         this.productRepository.save(product);
     }

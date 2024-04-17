@@ -6,6 +6,7 @@ import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.Sale;
 import com.example.nexus.model.entity.User;
+import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.repository.ProfileRepository;
 import com.example.nexus.repository.SaleRepository;
@@ -22,14 +23,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SaleServiceImplTests {
     private static Product product;
     private static Profile profile;
     private static String token;
+    private static TurnoverRequest turnoverRequest;
 
     @Mock
     private ProductRepository productRepository;
@@ -69,8 +71,13 @@ public class SaleServiceImplTests {
         profile.getUser().setUsername("username");
         profile.setBalance(0f);
 
-        when(jwtService.getTokenFromRequest(servletRequest)).thenReturn(token);
-        when(jwtService.getUsernameFromToken(token)).thenReturn(profile.getUser().getUsername());
+        turnoverRequest = new TurnoverRequest(
+                LocalDate.parse("2024-01-01"),
+                LocalDate.parse("2024-12-31")
+        );
+
+        lenient().when(jwtService.getTokenFromRequest(servletRequest)).thenReturn(token);
+        lenient().when(jwtService.getUsernameFromToken(token)).thenReturn(profile.getUser().getUsername());
     }
 
     @Test
@@ -131,5 +138,21 @@ public class SaleServiceImplTests {
                 () -> assertEquals(9, productCaptor.getValue().getAvailability()),
                 () -> assertEquals(remainBalance, profileCaptor.getValue().getBalance())
         );
+    }
+
+    @Test
+    void getTurnover_noSalesBetweenTheSpecifiedDates_expectNotFoundException() {
+        when(this.saleRepository.findSumByStartAndEndDate(
+                any(LocalDate.class), any(LocalDate.class))).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> this.saleService.getTurnover(turnoverRequest));
+    }
+
+    @Test
+    void getTurnover_everythingIsCorrect_returnFloat() {
+        when(this.saleRepository.findSumByStartAndEndDate(
+                any(LocalDate.class), any(LocalDate.class))).thenReturn(Optional.of(69.99f));
+
+        assertEquals(69.99f, this.saleService.getTurnover(turnoverRequest));
     }
 }

@@ -18,6 +18,7 @@ public class MessageConstants {
 
     // exists
     public static final String USER_EXISTS = "User already exists!";
+    public static final String CAMPAIGN_EXISTS = "Campaign already exists!";
 
     // fields
     public static final String FIELD_CANNOT_BE_BLANK = "Field can not be blank!";
@@ -47,6 +48,7 @@ public class MessageConstants {
             "digits, and spaces.";
     public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
             "positive or zero!";
+    public static final String INVALID_DISCOUNT = "Invalid format for discount. Discount must be between 0 and 100";
 
     // campaign
     public static final String INVALID_START_DATE = "Invalid format for start date. Start date must be present or" +
@@ -59,6 +61,7 @@ public class MessageConstants {
             " Please check back later or explore our other offerings";
     public static final String NOT_ENOUGH_MONEY = "Sorry, not enough funds to complete the purchase." +
             " Please charge more money in your account.";
+    public static final String NO_TURNOVER_FOR_THIS_PERIOD = "Sorry, there is no turnover for this period";
 
     // images
     public static final String FILE_UPLOAD_FAILURE = "File upload failed.";
