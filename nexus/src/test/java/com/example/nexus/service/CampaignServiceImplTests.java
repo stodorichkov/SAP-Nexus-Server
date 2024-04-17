@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
@@ -164,5 +165,16 @@ public class CampaignServiceImplTests {
         final var result = this.campaignService.getCampaigns(pageable);
 
         assertEquals(List.of(campaignResponse), result.getContent());
+    }
+
+    @Test
+    void getCampaignsList_expectCampaignNamesList() {
+        final var campaignsList = new ArrayList<>(List.of(campaign));
+
+        when(this.campaignRepository.findAll()).thenReturn(campaignsList);
+
+        final var result = this.campaignService.getCampaignsList();
+
+        assertEquals(List.of("Campaign"), result);
     }
 }
