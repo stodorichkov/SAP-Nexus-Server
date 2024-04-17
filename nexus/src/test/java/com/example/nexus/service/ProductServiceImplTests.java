@@ -6,13 +6,15 @@ import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
+import com.example.nexus.model.payload.request.ProductCampaignRequest;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
+import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.ProductSpecifications;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -23,20 +25,23 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceImplTests {
     private static Product product;
+    private static Campaign campaign;
     private static ProductRequest productRequest;
+    private static ProductCampaignRequest productCampaignRequest;
     private static ProductResponse productResponse;
     private static AdminProductResponse adminProductResponse;
     private static Pageable pageable;
 
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private CampaignRepository campaignRepository;
     @Mock
     private ProductMapper productMapper;
     @Mock
@@ -48,12 +53,12 @@ public class ProductServiceImplTests {
     @InjectMocks
     private ProductServiceImpl productService;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         final var category = new Category();
         category.setName("Category");
 
-        final var campaign = new Campaign();
+        campaign = new Campaign();
         campaign.setName("Campaign");
 
         product = new Product();
@@ -113,6 +118,11 @@ public class ProductServiceImplTests {
                 0
         );
 
+        productCampaignRequest = new ProductCampaignRequest(
+                "Campaign",
+                50
+        );
+
         pageable = Pageable.unpaged();
     }
 
@@ -170,6 +180,76 @@ public class ProductServiceImplTests {
                 () -> assertNull(productCaptor.getValue().getCampaign()),
                 () -> assertEquals(0, productCaptor.getValue().getDiscount()),
                 () -> assertEquals(0, productCaptor.getValue().getCampaignDiscount()),
+                () -> assertEquals(product.getId(), productCaptor.getValue().getId()),
+                () -> assertEquals(product.getName(), productCaptor.getValue().getName()),
+                () -> assertEquals(product.getBrand(), productCaptor.getValue().getBrand()),
+                () -> assertEquals(product.getDescription(), productCaptor.getValue().getDescription()),
+                () -> assertEquals(product.getCategory(), productCaptor.getValue().getCategory()),
+                () -> assertEquals(product.getAvailability(), productCaptor.getValue().getAvailability()),
+                () -> assertEquals(product.getPrice(), productCaptor.getValue().getPrice()),
+                () -> assertEquals(product.getMinPrice(), productCaptor.getValue().getMinPrice()),
+                () -> assertEquals(product.getImageLink(), productCaptor.getValue().getImageLink())
+        );
+    }
+
+    @Test
+    void addProductCampaign_productNotFound_expectNotFoundException() {
+        when(this.productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> this.productService.addProductCampaign(1L, mock(ProductCampaignRequest.class)));
+    }
+
+    @Test
+    void addProductCampaign_campaignNotFound_expectNotFoundException() {
+        when(this.productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(this.campaignRepository.findByName(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> this.productService.addProductCampaign(1L, productCampaignRequest));
+    }
+
+    @Test
+    void addProductCampaign_campaignNotActive_expectAddProductWithoutDiscount() {
+        product.setDiscount(0);
+
+        when(this.productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(this.campaignRepository.findByName(anyString())).thenReturn(Optional.of(campaign));
+
+        this.productService.addProductCampaign(product.getId(), productCampaignRequest);
+
+        verify(this.productRepository).save(productCaptor.capture());
+        assertAll(
+                () -> assertEquals(campaign, productCaptor.getValue().getCampaign()),
+                () -> assertEquals(0, productCaptor.getValue().getDiscount()),
+                () -> assertEquals(product.getCampaignDiscount(), productCaptor.getValue().getCampaignDiscount()),
+                () -> assertEquals(product.getId(), productCaptor.getValue().getId()),
+                () -> assertEquals(product.getName(), productCaptor.getValue().getName()),
+                () -> assertEquals(product.getBrand(), productCaptor.getValue().getBrand()),
+                () -> assertEquals(product.getDescription(), productCaptor.getValue().getDescription()),
+                () -> assertEquals(product.getCategory(), productCaptor.getValue().getCategory()),
+                () -> assertEquals(product.getAvailability(), productCaptor.getValue().getAvailability()),
+                () -> assertEquals(product.getPrice(), productCaptor.getValue().getPrice()),
+                () -> assertEquals(product.getMinPrice(), productCaptor.getValue().getMinPrice()),
+                () -> assertEquals(product.getImageLink(), productCaptor.getValue().getImageLink())
+        );
+    }
+
+    @Test
+    void addProductCampaign_campaignActive_expectAddProductWithDiscount() {
+        product.setDiscount(0);
+        campaign.setIsActive(true);
+
+        when(this.productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(this.campaignRepository.findByName(anyString())).thenReturn(Optional.of(campaign));
+
+        this.productService.addProductCampaign(product.getId(), productCampaignRequest);
+
+        verify(this.productRepository).save(productCaptor.capture());
+        assertAll(
+                () -> assertEquals(campaign, productCaptor.getValue().getCampaign()),
+                () -> assertNotEquals(0, productCaptor.getValue().getDiscount()),
+                () -> assertEquals(product.getCampaignDiscount(), productCaptor.getValue().getCampaignDiscount()),
                 () -> assertEquals(product.getId(), productCaptor.getValue().getId()),
                 () -> assertEquals(product.getName(), productCaptor.getValue().getName()),
                 () -> assertEquals(product.getBrand(), productCaptor.getValue().getBrand()),
