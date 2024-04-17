@@ -1,5 +1,6 @@
 package com.example.nexus.service;
 
+import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductRequest;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,13 +25,10 @@ class EditProductServiceImplTest {
 
     @InjectMocks
     private static EditProductServiceImpl editProductService;
-
     @Mock
     private static ProductRepository productRepository;
-
     @Mock
     private static CategoryRepository categoryRepository;
-
     @Mock
     private static FileService fileService;
 
@@ -58,5 +57,14 @@ class EditProductServiceImplTest {
         assertEquals(productRequest.minPrice(), product.getMinPrice());
         assertEquals(productRequest.discount(), product.getDiscount());
         assertEquals(productRequest.availability(), product.getAvailability());
+    }
+
+    @Test
+    void testEditProduct_NotFoundException() {
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            editProductService.editProduct(1L, productRequest);
+        });
     }
 }

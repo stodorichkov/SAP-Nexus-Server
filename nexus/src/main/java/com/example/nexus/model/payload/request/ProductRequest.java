@@ -3,6 +3,7 @@ package com.example.nexus.model.payload.request;
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.constant.RegexConstants;
 import jakarta.validation.constraints.*;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 public record ProductRequest(
@@ -26,6 +27,7 @@ public record ProductRequest(
         @PositiveOrZero(message = MessageConstants.INVALID_AVAILABILITY)
         int availability,
 
+        @RequestParam
         @Min(value = 0, message = MessageConstants.INVALID_DISCOUNT)
         @Max(value = 100, message = MessageConstants.INVALID_DISCOUNT)
         Integer discount,

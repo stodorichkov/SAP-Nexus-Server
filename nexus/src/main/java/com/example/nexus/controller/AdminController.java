@@ -110,4 +110,12 @@ public class AdminController {
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @PatchMapping("/product/{productId}/campaignDiscount/{discount}")
+    public ResponseEntity<?> editProductCampaignDiscount(@Valid @PathVariable Long productId, @PathVariable Integer discount) {
+        this.EditProductService.editProductCampaignDiscount(productId, discount);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

@@ -26,6 +26,7 @@ public class EditProductServiceImpl implements EditProductService {
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
 
         final var imageUrl = this.fileService.upload(productRequest.image());
+
         product.setName(productRequest.name());
         product.setBrand(productRequest.brand());
         product.setCategory(category);
@@ -37,5 +38,21 @@ public class EditProductServiceImpl implements EditProductService {
         product.setImageLink(imageUrl);
 
         this.productRepository.save(product);
+    }
+
+    @Override
+    public void editProductCampaignDiscount(Long productId, Integer discount) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        final var campaign = product.getCampaign();
+
+        if (campaign != null && campaign.getIsActive()) {
+            product.setDiscount(discount);
+            this.productRepository.save(product);
+        } else {
+            throw new IllegalStateException(MessageConstants.PRODUCT_NOT_FOUND);
+        }
     }
 }
