@@ -50,9 +50,8 @@ public class EditProductServiceImpl implements EditProductService {
 
         if (campaign != null && campaign.getIsActive()) {
             product.setDiscount(discount);
-            this.productRepository.save(product);
-        } else {
-            throw new IllegalStateException(MessageConstants.PRODUCT_NOT_FOUND);
         }
+
+        this.productRepository.save(product);
     }
 }

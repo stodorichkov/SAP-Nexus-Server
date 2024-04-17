@@ -27,7 +27,7 @@ public record ProductRequest(
         @PositiveOrZero(message = MessageConstants.INVALID_AVAILABILITY)
         int availability,
 
-        @RequestParam
+        @RequestParam(required = false)
         @Min(value = 0, message = MessageConstants.INVALID_DISCOUNT)
         @Max(value = 100, message = MessageConstants.INVALID_DISCOUNT)
         Integer discount,
