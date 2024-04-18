@@ -117,4 +117,48 @@ public class ProductServiceImpl implements ProductService {
                 .findAll(specification, pageable)
                 .map(this.productMapper::productToAdminProductResponse);
     }
+
+    @Override
+    public void editProduct(Long productId, ProductRequest productRequest) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        final var category = this.categoryRepository
+                .findByName(productRequest.category())
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
+
+        final var imageUrl = this.fileService.upload(productRequest.image());
+
+        product.setName(productRequest.name());
+        product.setBrand(productRequest.brand());
+        product.setCategory(category);
+        product.setDescription(productRequest.description());
+        product.setPrice(productRequest.price());
+        product.setMinPrice(productRequest.minPrice());
+        product.setDiscount(productRequest.discount());
+        product.setAvailability(productRequest.availability());
+        product.setImageLink(imageUrl);
+
+        this.productRepository.save(product);
+    }
+
+    @Override
+    public void editProductCampaignDiscount(Long productId, Integer discount) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        final var campaign = product.getCampaign();
+
+        if (campaign != null) {
+            if (campaign.getIsActive()) {
+                product.setDiscount(discount);
+            }
+            product.setCampaignDiscount(discount);
+        }
+
+        this.productRepository.save(product);
+    }
+
 }
