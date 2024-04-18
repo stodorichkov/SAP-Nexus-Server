@@ -129,8 +129,11 @@ public class ProductServiceImpl implements ProductService {
 
         final var campaign = product.getCampaign();
 
-        if (campaign != null && campaign.getIsActive()) {
-            product.setDiscount(discount);
+        if (campaign != null) {
+            if (campaign.getIsActive()) {
+                product.setDiscount(discount);
+            }
+            product.setCampaignDiscount(discount);
         }
 
         this.productRepository.save(product);

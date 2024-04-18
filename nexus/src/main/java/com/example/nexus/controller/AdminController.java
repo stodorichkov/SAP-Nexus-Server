@@ -112,7 +112,7 @@ public class AdminController {
     }
 
     @PatchMapping("/product/{productId}/campaignDiscount")
-    public ResponseEntity<?> editProductCampaignDiscount(@PathVariable Long productId, @RequestBody DiscountRequest discountRequest) {
+    public ResponseEntity<?> editProductCampaignDiscount(@PathVariable Long productId, @Valid @RequestBody DiscountRequest discountRequest) {
         this.productService.editProductCampaignDiscount(productId, discountRequest.discount());
 
         return ResponseEntity.status(HttpStatus.OK).build();
