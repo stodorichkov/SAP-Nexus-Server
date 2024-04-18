@@ -244,4 +244,31 @@ public class ProductServiceImplTests {
 
         assertEquals(List.of(adminProductResponse), result.getContent());
     }
+
+    @Test
+    void testEditProduct() {
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
+        when(fileService.upload(any())).thenReturn("imageUrl");
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        productService.editProduct(product.getId(), productRequest);
+
+        assertEquals(productRequest.name(), product.getName());
+        assertEquals(productRequest.brand(), product.getBrand());
+        assertEquals(productRequest.description(), product.getDescription());
+        assertEquals(productRequest.price(), product.getPrice());
+        assertEquals(productRequest.minPrice(), product.getMinPrice());
+        assertEquals(productRequest.discount(), product.getDiscount());
+        assertEquals(productRequest.availability(), product.getAvailability());
+    }
+
+    @Test
+    void testEditProduct_NotFoundException() {
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            productService.editProduct(1L, productRequest);
+        });
+    }
 }

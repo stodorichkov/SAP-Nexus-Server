@@ -1,6 +1,7 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.CampaignRequest;
+import com.example.nexus.model.payload.request.DiscountRequest;
 import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
@@ -24,7 +25,6 @@ public class AdminController {
     private final UserService userService;
     private final CampaignService campaignService;
     private final SaleService saleService;
-    private final EditProductService EditProductService;
 
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -106,14 +106,14 @@ public class AdminController {
 
     @PatchMapping("/product/{productId}")
     public ResponseEntity<?> editProduct(@PathVariable Long productId, @Valid @ModelAttribute ProductRequest productRequest) {
-        this.EditProductService.editProduct(productId, productRequest);
+        this.productService.editProduct(productId, productRequest);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PatchMapping("/product/{productId}/campaignDiscount")
-    public ResponseEntity<?> editProductCampaignDiscount(@PathVariable Long productId, @RequestBody Integer discount) {
-        this.EditProductService.editProductCampaignDiscount(productId, discount);
+    public ResponseEntity<?> editProductCampaignDiscount(@PathVariable Long productId, @RequestBody DiscountRequest discountRequest) {
+        this.productService.editProductCampaignDiscount(productId, discountRequest.discount());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
