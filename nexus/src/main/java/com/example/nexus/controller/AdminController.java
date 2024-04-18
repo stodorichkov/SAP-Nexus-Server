@@ -1,8 +1,13 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.CampaignRequest;
+
 import com.example.nexus.model.payload.request.DiscountRequest;
+
+import com.example.nexus.model.payload.request.ProductCampaignRequest;
+
 import com.example.nexus.model.payload.request.TurnoverRequest;
+import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
@@ -39,9 +44,17 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PatchMapping("/product/{productId}/campaign")
+    @PatchMapping("/product/{productId}/campaign/removal")
     ResponseEntity<?> removeProductCampaign(@PathVariable Long productId) {
         this.productService.removeProductCampaign(productId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PatchMapping("/product/{productId}/campaign/addition")
+    ResponseEntity<?> addProductCampaign(@PathVariable Long productId,
+                                         @RequestBody ProductCampaignRequest productCampaignRequest) {
+        this.productService.addProductCampaign(productId, productCampaignRequest);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -118,4 +131,15 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @GetMapping("/campaigns")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<CampaignResponse> getCampaigns(Pageable pageable) {
+        return this.campaignService.getCampaigns(pageable);
+    }
+
+    @GetMapping("/campaigns/list")
+    @ResponseStatus(HttpStatus.OK)
+    public List<String> getCampaignsList() {
+        return this.campaignService.getCampaignsList();
+    }
 }

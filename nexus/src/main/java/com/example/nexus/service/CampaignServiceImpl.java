@@ -4,13 +4,18 @@ import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.exception.CampaignAlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
+import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.payload.request.CampaignRequest;
+import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +73,19 @@ public class CampaignServiceImpl implements CampaignService {
         final var newCampaign = this.campaignMapper.campaignRequestToCampaign(campaignRequest);
 
         campaignRepository.save(newCampaign);
+    }
+
+    @Override
+    public Page<CampaignResponse> getCampaigns(Pageable pageable) {
+        return this.campaignRepository
+                .findAll(pageable)
+                .map(this.campaignMapper::campaignToCampaignResponse);
+    }
+
+    @Override
+    public List<String> getCampaignsList() {
+        return this.campaignRepository
+                .findAll().stream().map(Campaign::getName)
+                .toList();
     }
 }
