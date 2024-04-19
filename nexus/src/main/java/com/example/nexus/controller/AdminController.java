@@ -140,7 +140,7 @@ public class AdminController {
         return this.campaignService.getCampaignsList();
     }
 
-    @PatchMapping("/product/{productId}/removal")
+    @DeleteMapping("/product/{productId}")
     public ResponseEntity<?> removeProduct(@PathVariable Long productId) {
         productService.removeProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).build();

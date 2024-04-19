@@ -68,7 +68,4 @@ public class MessageConstants {
 
     // profile
     public static final String INVALID_MONEY_NUMBER = "The number is below zero";
-
-    // dates
-    public static final String INVALID_DATES = "Start date must be before end date";
 }
