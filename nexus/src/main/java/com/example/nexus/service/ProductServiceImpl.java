@@ -161,4 +161,12 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository.save(product);
     }
 
+    @Override
+    public void removeProduct(Long productId) {
+        final var product = this.productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        this.productRepository.delete(product);
+    }
 }
