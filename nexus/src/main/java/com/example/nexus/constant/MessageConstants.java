@@ -68,11 +68,4 @@ public class MessageConstants {
 
     // profile
     public static final String INVALID_MONEY_NUMBER = "The number is below zero";
-
-
-    // dates
-    public static final String INVALID_DATES = "Start date must be before end date";
-    public static final String INVALID_DISCOUNT = "The discount is not between 0 and 100";
-    public static final String FIELD_CANNOT_BE_NULL = "Field can not be blank!";
-
 }

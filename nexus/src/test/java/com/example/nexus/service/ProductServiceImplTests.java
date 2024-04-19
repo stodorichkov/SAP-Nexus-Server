@@ -351,4 +351,26 @@ public class ProductServiceImplTests {
             productService.editProduct(1L, productRequest);
         });
     }
+
+    @Test
+    public void testRemoveProduct() {
+        Product product = new Product();
+        product.setId(1L);
+
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        productService.removeProduct(1L);
+
+        ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository, times(1)).delete(argumentCaptor.capture());
+        assertEquals(product.getId(), argumentCaptor.getValue().getId());
+    }
+
+
+    @Test
+    public void testRemoveProduct_NotFound() {
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> productService.removeProduct(1L));
+    }
 }

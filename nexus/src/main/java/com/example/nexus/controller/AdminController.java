@@ -1,11 +1,8 @@
 package com.example.nexus.controller;
 
 import com.example.nexus.model.payload.request.CampaignRequest;
-
 import com.example.nexus.model.payload.request.DiscountRequest;
-
 import com.example.nexus.model.payload.request.ProductCampaignRequest;
-
 import com.example.nexus.model.payload.request.TurnoverRequest;
 import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.model.payload.response.UserResponse;
@@ -141,5 +138,11 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     public List<String> getCampaignsList() {
         return this.campaignService.getCampaignsList();
+    }
+
+    @DeleteMapping("/product/{productId}")
+    public ResponseEntity<?> removeProduct(@PathVariable Long productId) {
+        productService.removeProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

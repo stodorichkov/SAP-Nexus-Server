@@ -18,4 +18,5 @@ public interface ProductService {
     Page<AdminProductResponse> getProductsByCampaignAdmin(String campaignName, Pageable pageable);
     void editProduct(Long productId, ProductRequest productRequest);
     void editProductCampaignDiscount(Long productId, Integer discount);
+    void removeProduct(Long productId);
 }
