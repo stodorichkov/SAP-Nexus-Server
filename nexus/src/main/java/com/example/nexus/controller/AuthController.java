@@ -18,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/token")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
         final var token = this.authService.login(authenticationRequest);
         final var headers = new HttpHeaders();
 
