@@ -50,7 +50,7 @@ public class AdminController {
 
     @PatchMapping("/product/{productId}/campaign/addition")
     ResponseEntity<?> addProductCampaign(@PathVariable Long productId,
-                                         @RequestBody ProductCampaignRequest productCampaignRequest) {
+                                         @Valid @RequestBody ProductCampaignRequest productCampaignRequest) {
         this.productService.addProductCampaign(productId, productCampaignRequest);
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -101,14 +101,14 @@ public class AdminController {
     }
 
     @GetMapping("/turnover")
-    public ResponseEntity<Float> getTurnover(TurnoverRequest turnoverRequest) {
+    public ResponseEntity<Float> getTurnover(@Valid TurnoverRequest turnoverRequest) {
         Float turnover = this.saleService.getTurnover(turnoverRequest);
 
         return ResponseEntity.ok(turnover);
     }
 
     @PostMapping("/campaign")
-    public ResponseEntity<?> addCampaign(@RequestBody CampaignRequest campaignRequest) {
+    public ResponseEntity<?> addCampaign(@Valid @RequestBody CampaignRequest campaignRequest) {
         this.campaignService.addCampaign(campaignRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
