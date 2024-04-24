@@ -145,4 +145,11 @@ public class AdminController {
         productService.removeProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/campaigns/active")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CampaignResponse> getActiveCampaigns() {
+        return this.campaignService.getActiveCampaigns();
+    }
+
 }
