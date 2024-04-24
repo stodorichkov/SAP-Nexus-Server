@@ -92,9 +92,9 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public List<CampaignResponse> getActiveCampaigns() {
-        List<Campaign> activeCampaigns = this.campaignRepository.findByIsActive(true);
+        final var activeCampaigns = this.campaignRepository.findByIsActive(true);
         return activeCampaigns.stream()
                 .map(this.campaignMapper::campaignToCampaignResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

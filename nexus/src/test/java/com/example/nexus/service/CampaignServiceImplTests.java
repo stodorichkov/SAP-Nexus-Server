@@ -182,10 +182,10 @@ public class CampaignServiceImplTests {
     @Test
     void getActiveCampaigns_activeCampaignsExist_expectActiveCampaigns() {
         campaign.setIsActive(true);
-        final List<Campaign> campaigns = Arrays.asList(campaign);
+        final var campaigns = Arrays.asList(campaign);
         when(this.campaignRepository.findByIsActive(true)).thenReturn(campaigns);
 
-        final CampaignResponse activeCampaignResponse = new CampaignResponse(
+        final var activeCampaignResponse = new CampaignResponse(
                 campaign.getName(),
                 campaign.getStartDate(),
                 campaign.getEndDate(),
@@ -194,7 +194,7 @@ public class CampaignServiceImplTests {
 
         when(this.campaignMapper.campaignToCampaignResponse(campaign)).thenReturn(activeCampaignResponse);
 
-        final List<CampaignResponse> result = campaignService.getActiveCampaigns();
+        final var result = campaignService.getActiveCampaigns();
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).isActive());
