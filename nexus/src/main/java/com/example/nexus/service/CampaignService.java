@@ -12,4 +12,5 @@ public interface CampaignService {
     void addCampaign(CampaignRequest campaignRequest);
     Page<CampaignResponse> getCampaigns(Pageable pageable);
     List<String> getCampaignsList();
+    List<CampaignResponse> getActiveCampaigns();
 }
