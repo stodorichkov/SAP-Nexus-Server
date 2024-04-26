@@ -9,6 +9,7 @@ import com.example.nexus.model.entity.Category;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.ProductCampaignRequest;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.request.ProductsRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CampaignRepository;
@@ -35,6 +36,7 @@ public class ProductServiceImplTests {
     private static Campaign campaign;
     private static ProductRequest productRequestValidDiscount;
     private static ProductRequest productRequestInvalidDiscount;
+    private static ProductsRequest productsRequest;
     private static ProductCampaignRequest productCampaignRequest;
     private static ProductResponse productResponse;
     private static AdminProductResponse adminProductResponse;
@@ -136,6 +138,11 @@ public class ProductServiceImplTests {
         productCampaignRequest = new ProductCampaignRequest(
                 "Campaign",
                 50
+        );
+
+        productsRequest = new ProductsRequest(
+                true,
+                campaign.getName()
         );
 
         pageable = Pageable.unpaged();
@@ -280,36 +287,11 @@ public class ProductServiceImplTests {
     @Test
     void getProducts_expectPage() {
         final var productPage = new PageImpl<>(List.of(product));
-        final var specification = ProductSpecifications.findAvailable();
-
-        when(this.productRepository.findAll(eq(specification), eq(pageable))).thenReturn(productPage);
-        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
-
-        final var result = this.productService.getProducts(pageable);
-
-        assertEquals(List.of(productResponse), result.getContent());
-    }
-
-    @Test
-    void getPromoProducts_expectPage() {
-        final var productPage = new PageImpl<>(List.of(product));
 
         when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
         when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
 
-        final var result = this.productService.getPromoProducts(pageable);
-
-        assertEquals(List.of(productResponse), result.getContent());
-    }
-
-    @Test
-    void getProductsByCampaign_expectPage() {
-        final var productPage = new PageImpl<>(List.of(product));
-
-        when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
-        when(this.productMapper.productToProductResponse(eq(product))).thenReturn(productResponse);
-
-        final var result = this.productService.getProductsByCampaign("a", pageable);
+        final var result = this.productService.getProducts(productsRequest, pageable);
 
         assertEquals(List.of(productResponse), result.getContent());
     }
@@ -318,23 +300,10 @@ public class ProductServiceImplTests {
     void getProductsAdmin_expectPage() {
         final var productPage = new PageImpl<>(List.of(product));
 
-        when(this.productRepository.findAll(eq(pageable))).thenReturn(productPage);
-        when(this.productMapper.productToAdminProductResponse(eq(product))).thenReturn(adminProductResponse);
-
-        final var result = this.productService.getProductsAdmin(pageable);
-
-        assertEquals(List.of(adminProductResponse), result.getContent());
-    }
-
-    @Test
-    void getProductsByCampaignAdmin_expectPage() {
-        final var productPage = new PageImpl<>(List.of(product));
-
         when(this.productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
         when(this.productMapper.productToAdminProductResponse(eq(product))).thenReturn(adminProductResponse);
 
-        final var result = this.productService
-                .getProductsByCampaignAdmin("a", pageable);
+        final var result = this.productService.getProductsAdmin(productsRequest, pageable);
 
         assertEquals(List.of(adminProductResponse), result.getContent());
     }
@@ -364,18 +333,18 @@ public class ProductServiceImplTests {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
 
-        assertThrows(BadRequestException.class, () -> {
-            productService.editProduct(1L, productRequestInvalidDiscount);
-        });
+        assertThrows(BadRequestException.class, () ->
+                productService.editProduct(1L, productRequestInvalidDiscount)
+        );
     }
 
     @Test
     void editProduct_NotFoundException() {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> {
-            productService.editProduct(1L, productRequestValidDiscount);
-        });
+        assertThrows(NotFoundException.class, () ->
+                productService.editProduct(1L, productRequestValidDiscount)
+        );
     }
 
     @Test
@@ -404,18 +373,18 @@ public class ProductServiceImplTests {
     void editProductCampaignDiscount_NotFoundException() {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> {
-            productService.editProductCampaignDiscount(1L, 50);
-        });
+        assertThrows(NotFoundException.class, () ->
+                productService.editProductCampaignDiscount(1L, 50)
+        );
     }
 
     @Test
     void editProductCampaignDiscount_BadRequestException() {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
-        assertThrows(BadRequestException.class, () -> {
-            productService.editProductCampaignDiscount(1L, 50);
-        });
+        assertThrows(BadRequestException.class, () ->
+                productService.editProductCampaignDiscount(1L, 50)
+        );
     }
 
     @Test

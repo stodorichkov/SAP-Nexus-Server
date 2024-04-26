@@ -6,6 +6,7 @@ import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.payload.request.ProductCampaignRequest;
 import com.example.nexus.model.payload.request.ProductRequest;
+import com.example.nexus.model.payload.request.ProductsRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CampaignRepository;
@@ -75,8 +76,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProducts(Pageable pageable) {
-        final var specification = ProductSpecifications.findAvailable();
+    public Page<ProductResponse> getProducts(ProductsRequest productsRequest, Pageable pageable) {
+        var specification = ProductSpecifications.findAvailable()
+                .and(ProductSpecifications.findByCampaignName(productsRequest.campaign()))
+                .and(ProductSpecifications.findPromos(productsRequest.promo()));
 
         return this.productRepository
                 .findAll(specification, pageable)
@@ -84,35 +87,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getPromoProducts(Pageable pageable) {
-        final var specification = ProductSpecifications.findPromos()
-                .and(ProductSpecifications.findAvailable());
-
-        return this.productRepository
-                .findAll(specification, pageable)
-                .map(this.productMapper::productToProductResponse);
-    }
-
-    @Override
-    public Page<ProductResponse> getProductsByCampaign(String campaignName, Pageable pageable) {
-        final var specification = ProductSpecifications.findByCampaignName(campaignName)
-                .and(ProductSpecifications.findAvailable());
-
-        return this.productRepository
-                .findAll(specification, pageable)
-                .map(this.productMapper::productToProductResponse);
-    }
-
-    @Override
-    public Page<AdminProductResponse> getProductsAdmin(Pageable pageable) {
-        return this.productRepository
-                .findAll(pageable)
-                .map(this.productMapper::productToAdminProductResponse);
-    }
-
-    @Override
-    public Page<AdminProductResponse> getProductsByCampaignAdmin(String campaignName, Pageable pageable) {
-        final var specification = ProductSpecifications.findByCampaignName(campaignName);
+    public Page<AdminProductResponse> getProductsAdmin(ProductsRequest productsRequest, Pageable pageable) {
+        final var specification = ProductSpecifications
+                .findByCampaignName(productsRequest.campaign());
 
         return this.productRepository
                 .findAll(specification, pageable)
@@ -128,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
                 .findByName(productRequest.category())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
 
-        if (!isDiscountValid(productRequest.price(), productRequest.minPrice(), productRequest.discount())) {
+        if (isDiscountInvalid(productRequest.price(), productRequest.minPrice(), productRequest.discount())) {
             throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
         }
 
@@ -154,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
         final var campaign = product.getCampaign();
 
-        if (!isDiscountValid(product.getPrice(), product.getMinPrice(), discount)) {
+        if (isDiscountInvalid(product.getPrice(), product.getMinPrice(), discount)) {
             throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
         }
 
@@ -177,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository.delete(product);
     }
 
-    private boolean isDiscountValid(Float price, Float minPrice, Integer discount) {
-        return (price - discount.floatValue() / 100 * price ) >= minPrice;
+    private boolean isDiscountInvalid(Float price, Float minPrice, Integer discount) {
+        return !((price - discount.floatValue() / 100 * price) >= minPrice);
     }
 }
