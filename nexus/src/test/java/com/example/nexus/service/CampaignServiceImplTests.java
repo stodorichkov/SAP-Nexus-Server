@@ -200,4 +200,24 @@ public class CampaignServiceImplTests {
         assertTrue(result.get(0).isActive());
         assertEquals(campaign.getName(), result.get(0).name());
     }
+
+    @Test
+    public void testEditCampaign() {
+        final var campaignName = "Test Campaign";
+        final var startDate = LocalDate.now();
+        final var endDate = startDate.plusDays(10);
+        final var campaignRequest = new CampaignRequest(campaignName, startDate, endDate);
+        final var campaign = new Campaign();
+
+        when(campaignRepository.findByName(campaignName)).thenReturn(Optional.of(campaign));
+
+        campaignService.editCampaign(campaignName, campaignRequest);
+
+        verify(campaignRepository, times(1)).findByName(campaignName);
+        verify(campaignRepository, times(1)).save(campaign);
+
+        assertEquals(campaignName, campaign.getName());
+        assertEquals(startDate, campaign.getStartDate());
+        assertEquals(endDate, campaign.getEndDate());
+    }
 }

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,5 +95,21 @@ public class CampaignServiceImpl implements CampaignService {
         return activeCampaigns.stream()
                 .map(this.campaignMapper::campaignToCampaignResponse)
                 .toList();
+    }
+
+    @Override
+    public void editCampaign(String campaignName, CampaignRequest campaignRequest) {
+        final var campaign = this.campaignRepository.findByName(campaignName)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+
+        if (!campaignRequest.isStartDateBeforeEndDate()) {
+            throw new IllegalArgumentException(MessageConstants.INVALID_END_DATE);
+        }
+
+        campaign.setName(campaignRequest.name());
+        campaign.setStartDate(campaignRequest.startDate());
+        campaign.setEndDate(campaignRequest.endDate());
+
+        this.campaignRepository.save(campaign);
     }
 }

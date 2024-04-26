@@ -152,4 +152,10 @@ public class AdminController {
         return this.campaignService.getActiveCampaigns();
     }
 
+    @PatchMapping("/campaign/{campaignName}")
+    public ResponseEntity<?> editCampaign(@PathVariable String campaignName, @RequestBody CampaignRequest campaignRequest) {
+        this.campaignService.editCampaign(campaignName, campaignRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
