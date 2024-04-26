@@ -202,7 +202,7 @@ public class CampaignServiceImplTests {
     }
 
     @Test
-    public void testEditCampaign() {
+    public void EditCampaign() {
         final var campaignName = "Test Campaign";
         final var startDate = LocalDate.now();
         final var endDate = startDate.plusDays(10);
