@@ -1,5 +1,6 @@
 package com.example.nexus.service;
 
+import com.example.nexus.exception.BadRequestException;
 import com.example.nexus.exception.FileUploadException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
@@ -32,7 +33,8 @@ import static org.mockito.Mockito.*;
 public class ProductServiceImplTests {
     private static Product product;
     private static Campaign campaign;
-    private static ProductRequest productRequest;
+    private static ProductRequest productRequestValidDiscount;
+    private static ProductRequest productRequestInvalidDiscount;
     private static ProductCampaignRequest productCampaignRequest;
     private static ProductResponse productResponse;
     private static AdminProductResponse adminProductResponse;
@@ -70,9 +72,9 @@ public class ProductServiceImplTests {
         product.setCampaign(campaign);
         product.setAvailability(20);
         product.setPrice(100f);
-        product.setMinPrice(90f);
-        product.setDiscount(10);
-        product.setCampaignDiscount(20);
+        product.setMinPrice(70f);
+        product.setDiscount(20);
+        product.setCampaignDiscount(30);
         product.setImageLink("url");
 
         final var file = new MockMultipartFile(
@@ -82,15 +84,27 @@ public class ProductServiceImplTests {
                 new byte[]{}
         );
 
-        productRequest = new ProductRequest(
+        productRequestValidDiscount = new ProductRequest(
                 "Product",
                 "Brand",
                 "Category",
                 "Description",
                 100f,
-                100f,
+                90f,
                 20,
                 10,
+                file
+        );
+
+        productRequestInvalidDiscount = new ProductRequest(
+                "Product",
+                "Brand",
+                "Category",
+                "Description",
+                100f,
+                90f,
+                20,
+                20,
                 file
         );
 
@@ -129,33 +143,33 @@ public class ProductServiceImplTests {
 
     @Test
     void addProduct_categoryNotExist_expectNotFoundException() {
-        when(this.categoryRepository.findByName(productRequest.category())).thenReturn(Optional.empty());
+        when(this.categoryRepository.findByName(productRequestValidDiscount.category())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> this.productService.addProduct(productRequest));
+        assertThrows(NotFoundException.class, () -> this.productService.addProduct(productRequestValidDiscount));
 
-        verify(this.categoryRepository).findByName(productRequest.category());
+        verify(this.categoryRepository).findByName(productRequestValidDiscount.category());
         verifyNoInteractions(this.fileService, this.productMapper, this.productRepository);
     }
 
     @Test
     void addProduct_invalidImage_expectFileUploadException() {
-        when(this.categoryRepository.findByName(productRequest.category()))
+        when(this.categoryRepository.findByName(productRequestValidDiscount.category()))
                 .thenReturn(Optional.ofNullable(product.getCategory()));
-        when(this.fileService.upload(productRequest.image())).thenThrow(FileUploadException.class);
+        when(this.fileService.upload(productRequestValidDiscount.image())).thenThrow(FileUploadException.class);
 
         verifyNoInteractions(this.productMapper, this.productRepository);
 
-        assertThrows(FileUploadException.class, () -> productService.addProduct(productRequest));
+        assertThrows(FileUploadException.class, () -> productService.addProduct(productRequestValidDiscount));
     }
 
     @Test
     void addProduct_validData_expectSave() {
-        when(this.categoryRepository.findByName(productRequest.category()))
+        when(this.categoryRepository.findByName(productRequestValidDiscount.category()))
                 .thenReturn(Optional.ofNullable(product.getCategory()));
-        when(this.fileService.upload(productRequest.image())).thenReturn("url");
-        when(this.productMapper.productRequestToProduct(productRequest)).thenReturn(product);
+        when(this.fileService.upload(productRequestValidDiscount.image())).thenReturn("url");
+        when(this.productMapper.productRequestToProduct(productRequestValidDiscount)).thenReturn(product);
 
-        this.productService.addProduct(productRequest);
+        this.productService.addProduct(productRequestValidDiscount);
 
         verify(this.productRepository).save(productCaptor.capture());
 
@@ -326,34 +340,46 @@ public class ProductServiceImplTests {
     }
 
     @Test
-    void testEditProduct() {
+    void editProduct() {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
         when(fileService.upload(any())).thenReturn("imageUrl");
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
-        productService.editProduct(product.getId(), productRequest);
+        productService.editProduct(product.getId(), productRequestValidDiscount);
 
-        assertEquals(productRequest.name(), product.getName());
-        assertEquals(productRequest.brand(), product.getBrand());
-        assertEquals(productRequest.description(), product.getDescription());
-        assertEquals(productRequest.price(), product.getPrice());
-        assertEquals(productRequest.minPrice(), product.getMinPrice());
-        assertEquals(productRequest.discount(), product.getDiscount());
-        assertEquals(productRequest.availability(), product.getAvailability());
+        assertAll(
+            () -> assertEquals(productRequestValidDiscount.name(), product.getName()),
+            () -> assertEquals(productRequestValidDiscount.brand(), product.getBrand()),
+            () -> assertEquals(productRequestValidDiscount.description(), product.getDescription()),
+            () -> assertEquals(productRequestValidDiscount.price(), product.getPrice()),
+            () -> assertEquals(productRequestValidDiscount.minPrice(), product.getMinPrice()),
+            () -> assertEquals(productRequestValidDiscount.discount(), product.getDiscount()),
+            () -> assertEquals(productRequestValidDiscount.availability(), product.getAvailability())
+        );
     }
 
     @Test
-    void testEditProduct_NotFoundException() {
-        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void editProduct_BadRequestException() {
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
 
-        assertThrows(NotFoundException.class, () -> {
-            productService.editProduct(1L, productRequest);
+        assertThrows(BadRequestException.class, () -> {
+            productService.editProduct(1L, productRequestInvalidDiscount);
         });
     }
 
     @Test
-    public void testRemoveProduct() {
+    void editProduct_NotFoundException() {
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            productService.editProduct(1L, productRequestValidDiscount);
+        });
+    }
+
+    @Test
+    public void removeProduct() {
         Product product = new Product();
         product.setId(1L);
 
@@ -368,9 +394,59 @@ public class ProductServiceImplTests {
 
 
     @Test
-    public void testRemoveProduct_NotFound() {
+    public void removeProduct_NotFound() {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> productService.removeProduct(1L));
+    }
+
+    @Test
+    void editProductCampaignDiscount_NotFoundException() {
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            productService.editProductCampaignDiscount(1L, 50);
+        });
+    }
+
+    @Test
+    void editProductCampaignDiscount_BadRequestException() {
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+
+        assertThrows(BadRequestException.class, () -> {
+            productService.editProductCampaignDiscount(1L, 50);
+        });
+    }
+
+    @Test
+    void editProductCampaignDiscount_onlyCampaignDiscount() {
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+
+        campaign.setIsActive(false);
+
+        productService.editProductCampaignDiscount(1L, 10);
+
+        verify(this.productRepository).save(productCaptor.capture());
+
+        assertAll(
+                () -> assertEquals(10, productCaptor.getValue().getCampaignDiscount()),
+                () -> assertEquals(product.getDiscount(), productCaptor.getValue().getDiscount())
+        );
+    }
+
+    @Test
+    void editProductCampaignDiscount_bothDiscounts() {
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+
+        campaign.setIsActive(true);
+
+        productService.editProductCampaignDiscount(1L, 10);
+
+        verify(this.productRepository).save(productCaptor.capture());
+
+        assertAll(
+                () -> assertEquals(10, productCaptor.getValue().getCampaignDiscount()),
+                () -> assertEquals(10, productCaptor.getValue().getDiscount())
+        );
     }
 }

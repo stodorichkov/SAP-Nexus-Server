@@ -49,12 +49,14 @@ public class MessageConstants {
     public static final String INVALID_AVAILABILITY = "Invalid format for availability. Availability must be " +
             "positive or zero!";
     public static final String INVALID_DISCOUNT = "Invalid format for discount. Discount must be between 0 and 100";
+    public static final String INVALID_DISCOUNT_MIN_PRICE = "Invalid format for discount. Price after discount falls" +
+            " bellow minimum!";
 
     // campaign
     public static final String INVALID_START_DATE = "Invalid format for start date. Start date must be present or" +
             " future!";
     public static final String INVALID_END_DATE = "Invalid format for end date. End date must be greater than or" +
-            " equal to the start date";
+            " equal to the start date!";
 
     // sale
     public static final String PRODUCT_UNAVAILABLE = "Sorry, the requested product is currently unavailable." +

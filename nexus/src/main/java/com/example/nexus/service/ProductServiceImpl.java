@@ -1,6 +1,7 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
+import com.example.nexus.exception.BadRequestException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.ProductMapper;
 import com.example.nexus.model.payload.request.ProductCampaignRequest;
@@ -123,10 +124,13 @@ public class ProductServiceImpl implements ProductService {
         final var product = this.productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
-
         final var category = this.categoryRepository
                 .findByName(productRequest.category())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
+
+        if (!isDiscountValid(productRequest.price(), productRequest.minPrice(), productRequest.discount())) {
+            throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
+        }
 
         final var imageUrl = this.fileService.upload(productRequest.image());
 
@@ -148,8 +152,11 @@ public class ProductServiceImpl implements ProductService {
         final var product = this.productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
-
         final var campaign = product.getCampaign();
+
+        if (!isDiscountValid(product.getPrice(), product.getMinPrice(), discount)) {
+            throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
+        }
 
         if (campaign != null) {
             if (campaign.getIsActive()) {
@@ -168,5 +175,9 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
 
         this.productRepository.delete(product);
+    }
+
+    private boolean isDiscountValid(Float price, Float minPrice, Integer discount) {
+        return (price - discount.floatValue() / 100 * price ) >= minPrice;
     }
 }
