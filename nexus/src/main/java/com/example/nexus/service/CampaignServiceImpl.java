@@ -34,7 +34,7 @@ public class CampaignServiceImpl implements CampaignService {
         final var products = this.productRepository.findAll(specification);
 
         products.forEach(product ->
-            product.setDiscount(product.getCampaignDiscount())
+                product.setDiscount(product.getCampaignDiscount())
         );
 
         campaign.setIsActive(true);
@@ -97,5 +97,15 @@ public class CampaignServiceImpl implements CampaignService {
                 .stream()
                 .map(Campaign::getName)
                 .toList();
+    }
+
+    @Override
+    public void editCampaign(String campaignName, CampaignRequest campaignRequest) {
+        final var campaign = this.campaignRepository.findByName(campaignName)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+
+        this.campaignMapper.updateCampaignFromRequest(campaignRequest, campaign);
+
+        this.campaignRepository.save(campaign);
     }
 }

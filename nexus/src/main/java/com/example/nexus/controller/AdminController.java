@@ -136,4 +136,17 @@ public class AdminController {
         productService.removeProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/campaigns/active")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CampaignResponse> getActiveCampaigns() {
+        return this.campaignService.getActiveCampaigns();
+    }
+
+    @PatchMapping("/campaign/{campaignName}")
+    public ResponseEntity<?> editCampaign(@PathVariable String campaignName, @Valid @RequestBody CampaignRequest campaignRequest) {
+        this.campaignService.editCampaign(campaignName, campaignRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
