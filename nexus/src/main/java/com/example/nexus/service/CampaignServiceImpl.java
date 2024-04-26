@@ -9,6 +9,7 @@ import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
+import com.example.nexus.specification.CampaignSpecifications;
 import com.example.nexus.specification.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -90,10 +91,11 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<CampaignResponse> getActiveCampaigns() {
-        final var activeCampaigns = this.campaignRepository.findByIsActive(true);
-        return activeCampaigns.stream()
-                .map(this.campaignMapper::campaignToCampaignResponse)
+    public List<String> getActiveCampaigns() {
+        return this.campaignRepository
+                .findAll(CampaignSpecifications.findByActive(true))
+                .stream()
+                .map(Campaign::getName)
                 .toList();
     }
 

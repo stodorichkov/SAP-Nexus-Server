@@ -21,10 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -182,23 +180,16 @@ public class CampaignServiceImplTests {
     @Test
     void getActiveCampaigns_activeCampaignsExist_expectActiveCampaigns() {
         campaign.setIsActive(true);
-        final var campaigns = Arrays.asList(campaign);
-        when(this.campaignRepository.findByIsActive(true)).thenReturn(campaigns);
+        final var campaigns = Collections.singletonList(campaign);
 
-        final var activeCampaignResponse = new CampaignResponse(
-                campaign.getName(),
-                campaign.getStartDate(),
-                campaign.getEndDate(),
-                true
-        );
-
-        when(this.campaignMapper.campaignToCampaignResponse(campaign)).thenReturn(activeCampaignResponse);
+        when(this.campaignRepository.findAll(any(Specification.class))).thenReturn(campaigns);
 
         final var result = campaignService.getActiveCampaigns();
 
-        assertEquals(1, result.size());
-        assertTrue(result.get(0).isActive());
-        assertEquals(campaign.getName(), result.get(0).name());
+        assertAll(
+                () -> assertEquals(1, result.size()),
+                () ->assertEquals(campaign.getName(), result.get(0))
+        );
     }
 
     @Test

@@ -22,8 +22,10 @@ public class ProductSpecifications {
         };
     }
 
-    public static Specification<Product> findPromos() {
+    public static Specification<Product> findPromos(Boolean promo) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThan(root.get(ProductConstants.DISCOUNT), 0);
+                promo != null && promo ?
+                criteriaBuilder.greaterThan(root.get(ProductConstants.DISCOUNT), 0)
+                : null;
     }
 }
