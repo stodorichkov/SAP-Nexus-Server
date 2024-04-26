@@ -1,6 +1,6 @@
 package com.example.nexus.service;
 
-import com.example.nexus.exception.CampaignAlreadyExistsException;
+import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
@@ -126,7 +126,7 @@ public class CampaignServiceImplTests {
     void addCampaign_campaignExist_expectCampaignAlreadyExistsException() {
         when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.of(campaign));
 
-        assertThrows(CampaignAlreadyExistsException.class,
+        assertThrows(AlreadyExistsException.class,
                 () -> this.campaignService.addCampaign(campaignRequest));
     }
 

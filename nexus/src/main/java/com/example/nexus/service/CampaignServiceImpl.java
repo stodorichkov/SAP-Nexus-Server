@@ -1,7 +1,7 @@
 package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
-import com.example.nexus.exception.CampaignAlreadyExistsException;
+import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
@@ -67,7 +67,7 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public void addCampaign(CampaignRequest campaignRequest) {
         if (this.campaignRepository.findByName(campaignRequest.name()).isPresent()) {
-            throw new CampaignAlreadyExistsException(MessageConstants.CAMPAIGN_EXISTS);
+            throw new AlreadyExistsException(MessageConstants.CAMPAIGN_EXISTS);
         }
 
         final var newCampaign = this.campaignMapper.campaignRequestToCampaign(campaignRequest);
