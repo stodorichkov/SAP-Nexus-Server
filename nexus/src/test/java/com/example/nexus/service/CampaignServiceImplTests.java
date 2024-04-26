@@ -21,10 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -182,7 +180,7 @@ public class CampaignServiceImplTests {
     @Test
     void getActiveCampaigns_activeCampaignsExist_expectActiveCampaigns() {
         campaign.setIsActive(true);
-        final var campaigns = Arrays.asList(campaign);
+        final var campaigns = Collections.singletonList(campaign);
 
         when(this.campaignRepository.findAll(any(Specification.class))).thenReturn(campaigns);
 
