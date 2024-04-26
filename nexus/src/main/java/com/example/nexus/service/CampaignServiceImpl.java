@@ -102,10 +102,6 @@ public class CampaignServiceImpl implements CampaignService {
         final var campaign = this.campaignRepository.findByName(campaignName)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
 
-        if (!campaignRequest.isStartDateBeforeEndDate()) {
-            throw new IllegalArgumentException(MessageConstants.INVALID_END_DATE);
-        }
-
         campaign.setName(campaignRequest.name());
         campaign.setStartDate(campaignRequest.startDate());
         campaign.setEndDate(campaignRequest.endDate());
