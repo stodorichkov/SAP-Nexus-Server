@@ -12,7 +12,7 @@ public class ProductSpecifications {
     }
 
     public static Specification<Product> findByCampaignName(String campaignName) {
-        return (root, query, criteriaBuilder) -> {
+        return campaignName == null ? null : (root, query, criteriaBuilder) -> {
             root.fetch(ProductConstants.CAMPAIGN, JoinType.INNER);
             return criteriaBuilder.equal(
                     root.get(ProductConstants.CAMPAIGN)
@@ -23,9 +23,7 @@ public class ProductSpecifications {
     }
 
     public static Specification<Product> findPromos(Boolean promo) {
-        return (root, query, criteriaBuilder) ->
-                promo != null && promo ?
-                criteriaBuilder.greaterThan(root.get(ProductConstants.DISCOUNT), 0)
-                : null;
+        return promo == null || !promo ? null : (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThan(root.get(ProductConstants.DISCOUNT), 0);
     }
 }
