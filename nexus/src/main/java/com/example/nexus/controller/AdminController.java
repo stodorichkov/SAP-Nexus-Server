@@ -139,7 +139,7 @@ public class AdminController {
 
     @GetMapping("/campaigns/active")
     @ResponseStatus(HttpStatus.OK)
-    public List<CampaignResponse> getActiveCampaigns() {
+    public List<String> getActiveCampaigns() {
         return this.campaignService.getActiveCampaigns();
     }
 

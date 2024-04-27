@@ -4,15 +4,11 @@ import com.example.nexus.config.ImageConfig;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -20,9 +16,8 @@ import java.util.Objects;
 public class ImageScheduler implements InitializingBean {
     private final ProductRepository productRepository;
     private final ImageConfig imageConfig;
-    private final Logger logger = LoggerFactory.getLogger(ImageScheduler.class);
 
-    @Scheduled(cron = "5 * * * * ?")
+    @Scheduled(cron = "* * 1 * * ?")
     public void deleteImage() {
         final var dbImageFileNames = this.productRepository.findAll()
                 .stream().map(Product::getImageLink).toList();
@@ -30,13 +25,9 @@ public class ImageScheduler implements InitializingBean {
         final var fsImageFileNames = Arrays.stream(Objects.requireNonNull(
                 new File(this.imageConfig.getDir()).list())).toList();
 
-        this.logger.info(String.valueOf(dbImageFileNames));
-        this.logger.info(String.valueOf(fsImageFileNames));
-
         for (var fileName : fsImageFileNames) {
             if (!dbImageFileNames.contains(imageConfig.getBaseUrl() + fileName)) {
-                File file = new File(imageConfig.getDir() + '/' + fileName);
-                logger.info(file.toString());
+                final var file = new File(imageConfig.getDir() + '/' + fileName);
                 file.delete();
             }
         }
