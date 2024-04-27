@@ -1,12 +1,8 @@
 package com.example.nexus.controller;
 
-import com.example.nexus.model.payload.request.CampaignRequest;
-import com.example.nexus.model.payload.request.DiscountRequest;
-import com.example.nexus.model.payload.request.ProductCampaignRequest;
-import com.example.nexus.model.payload.request.TurnoverRequest;
+import com.example.nexus.model.payload.request.*;
 import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.model.payload.response.UserResponse;
-import com.example.nexus.model.payload.request.ProductRequest;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.service.*;
 import jakarta.validation.Valid;
@@ -57,8 +53,8 @@ public class AdminController {
     }
 
     @GetMapping("/product")
-    Page<AdminProductResponse> getProducts(Pageable pageable) {
-        return this.productService.getProductsAdmin(pageable);
+    Page<AdminProductResponse> getProducts(ProductsRequest productRequest, Pageable pageable) {
+        return this.productService.getProductsAdmin(productRequest, pageable);
     }
 
     @GetMapping("/categories")
@@ -93,11 +89,6 @@ public class AdminController {
         userService.removeUserRole(username);
 
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @GetMapping("/campaign/{campaignName}")
-    Page<AdminProductResponse> getCampaignProducts(@PathVariable String campaignName, Pageable pageable) {
-        return this.productService.getProductsByCampaignAdmin(campaignName, pageable);
     }
 
     @GetMapping("/turnover")
@@ -143,6 +134,19 @@ public class AdminController {
     @DeleteMapping("/product/{productId}")
     public ResponseEntity<?> removeProduct(@PathVariable Long productId) {
         productService.removeProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/campaigns/active")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CampaignResponse> getActiveCampaigns() {
+        return this.campaignService.getActiveCampaigns();
+    }
+
+    @PatchMapping("/campaign/{campaignName}")
+    public ResponseEntity<?> editCampaign(@PathVariable String campaignName, @Valid @RequestBody CampaignRequest campaignRequest) {
+        this.campaignService.editCampaign(campaignName, campaignRequest);
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

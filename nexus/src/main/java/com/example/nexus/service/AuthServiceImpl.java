@@ -2,9 +2,9 @@ package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.constant.RoleConstants;
+import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
-import com.example.nexus.exception.UserAlreadyExistsException;
 import com.example.nexus.mapper.RegisterMapper;
 import com.example.nexus.model.entity.User;
 import com.example.nexus.model.payload.request.AuthenticationRequest;
@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void registerUser(RegisterRequest registerRequest) {
         if (this.userRepository.findByUsername(registerRequest.username()).isPresent()) {
-            throw new UserAlreadyExistsException(MessageConstants.USER_EXISTS);
+            throw new AlreadyExistsException(MessageConstants.USER_EXISTS);
         }
 
         final var newProfile = this.registerMapper.registerRequestToProfile(registerRequest);

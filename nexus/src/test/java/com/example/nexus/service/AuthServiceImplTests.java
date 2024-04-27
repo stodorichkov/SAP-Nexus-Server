@@ -2,9 +2,9 @@ package com.example.nexus.service;
 
 import com.example.nexus.constant.MessageConstants;
 import com.example.nexus.constant.RoleConstants;
+import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.exception.UnauthorizedException;
-import com.example.nexus.exception.UserAlreadyExistsException;
 import com.example.nexus.mapper.RegisterMapper;
 import com.example.nexus.model.entity.Profile;
 import com.example.nexus.model.entity.Role;
@@ -95,7 +95,7 @@ public class AuthServiceImplTests {
     void registerUser_userAlreadyExists_expectUserAlreadyExistsException() {
         when(this.userRepository.findByUsername("petar_g")).thenReturn(Optional.of(new User()));
 
-        assertThatExceptionOfType(UserAlreadyExistsException.class).
+        assertThatExceptionOfType(AlreadyExistsException.class).
                 isThrownBy(() -> this.authService.registerUser(registerRequest)).
                 withMessage(MessageConstants.USER_EXISTS);
 

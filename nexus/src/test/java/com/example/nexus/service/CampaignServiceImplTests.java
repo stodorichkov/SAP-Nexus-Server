@@ -1,6 +1,6 @@
 package com.example.nexus.service;
 
-import com.example.nexus.exception.CampaignAlreadyExistsException;
+import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
@@ -21,9 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -126,7 +125,7 @@ public class CampaignServiceImplTests {
     void addCampaign_campaignExist_expectCampaignAlreadyExistsException() {
         when(this.campaignRepository.findByName(any(String.class))).thenReturn(Optional.of(campaign));
 
-        assertThrows(CampaignAlreadyExistsException.class,
+        assertThrows(AlreadyExistsException.class,
                 () -> this.campaignService.addCampaign(campaignRequest));
     }
 
@@ -176,5 +175,40 @@ public class CampaignServiceImplTests {
         final var result = this.campaignService.getCampaignsList();
 
         assertEquals(List.of("Campaign"), result);
+    }
+
+    @Test
+    void getActiveCampaigns_activeCampaignsExist_expectActiveCampaigns() {
+        campaign.setIsActive(true);
+        final var campaigns = Collections.singletonList(campaign);
+
+        when(this.campaignRepository.findAll(any(Specification.class))).thenReturn(campaigns);
+
+        final var result = campaignService.getActiveCampaigns();
+
+        assertAll(
+                () -> assertEquals(1, result.size()),
+                () ->assertEquals(campaign.getName(), result.get(0))
+        );
+    }
+
+    @Test
+    public void EditCampaign() {
+        final var campaignName = "Test Campaign";
+        final var startDate = LocalDate.now();
+        final var endDate = startDate.plusDays(10);
+        final var campaignRequest = new CampaignRequest(campaignName, startDate, endDate);
+        final var campaign = new Campaign();
+
+        when(campaignRepository.findByName(campaignName)).thenReturn(Optional.of(campaign));
+
+        campaignService.editCampaign(campaignName, campaignRequest);
+
+        verify(campaignRepository, times(1)).findByName(campaignName);
+        verify(campaignRepository, times(1)).save(campaign);
+
+        assertEquals(campaignName, campaign.getName());
+        assertEquals(startDate, campaign.getStartDate());
+        assertEquals(endDate, campaign.getEndDate());
     }
 }
