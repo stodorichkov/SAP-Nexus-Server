@@ -12,6 +12,7 @@ import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
+import com.example.nexus.repository.SaleRepository;
 import com.example.nexus.specification.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
     private final CampaignRepository campaignRepository;
+    private final SaleRepository saleRepository;
 
     @Override
     public void addProduct(ProductRequest productRequest) {
@@ -150,6 +152,11 @@ public class ProductServiceImpl implements ProductService {
         final var product = this.productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.PRODUCT_NOT_FOUND));
+
+        product.setCategory(null);
+        product.setCampaign(null);
+
+        this.saleRepository.findByProduct(product).forEach(sale -> sale.setProduct(null));
 
         this.productRepository.delete(product);
     }

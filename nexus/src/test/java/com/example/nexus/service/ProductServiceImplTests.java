@@ -15,6 +15,7 @@ import com.example.nexus.model.payload.response.ProductResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.CategoryRepository;
 import com.example.nexus.repository.ProductRepository;
+import com.example.nexus.repository.SaleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,8 @@ public class ProductServiceImplTests {
     private ProductRepository productRepository;
     @Mock
     private CampaignRepository campaignRepository;
+    @Mock
+    private SaleRepository saleRepository;
     @Mock
     private ProductMapper productMapper;
     @Mock
