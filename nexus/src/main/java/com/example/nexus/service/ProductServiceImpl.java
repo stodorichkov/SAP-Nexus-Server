@@ -66,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
                 .findByName(productCampaignRequest.campaignName())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
 
-        if (isDiscountInvalid(product.getPrice(), product.getPrice(), productCampaignRequest.campaignDiscount())) {
+        if (isDiscountInvalid(product.getPrice(), product.getMinPrice(), productCampaignRequest.campaignDiscount())) {
             throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
         }
 
@@ -116,14 +116,9 @@ public class ProductServiceImpl implements ProductService {
 
         final var imageUrl = this.fileService.upload(productRequest.image());
 
-        product.setName(productRequest.name());
-        product.setBrand(productRequest.brand());
+
+        this.productMapper.updateProduct(productRequest, product);
         product.setCategory(category);
-        product.setDescription(productRequest.description());
-        product.setPrice(productRequest.price());
-        product.setMinPrice(productRequest.minPrice());
-        product.setDiscount(productRequest.discount());
-        product.setAvailability(productRequest.availability());
         product.setImageLink(imageUrl);
 
         this.productRepository.save(product);

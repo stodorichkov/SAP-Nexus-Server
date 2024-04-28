@@ -1,7 +1,7 @@
 package com.example.nexus.controller;
 
+import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.payload.request.*;
-import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.model.payload.response.UserResponse;
 import com.example.nexus.model.payload.response.AdminProductResponse;
 import com.example.nexus.service.*;
@@ -121,7 +121,7 @@ public class AdminController {
 
     @GetMapping("/campaigns")
     @ResponseStatus(HttpStatus.OK)
-    public Page<CampaignResponse> getCampaigns(Pageable pageable) {
+    public Page<Campaign> getCampaigns(Pageable pageable) {
         return this.campaignService.getCampaigns(pageable);
     }
 
@@ -143,9 +143,9 @@ public class AdminController {
         return this.campaignService.getActiveCampaigns();
     }
 
-    @PatchMapping("/campaign/{campaignName}")
-    public ResponseEntity<?> editCampaign(@PathVariable String campaignName, @Valid @RequestBody CampaignRequest campaignRequest) {
-        this.campaignService.editCampaign(campaignName, campaignRequest);
+    @PatchMapping("/campaign/{campaignId}")
+    public ResponseEntity<?> editCampaign(@PathVariable Long campaignId, @Valid @RequestBody CampaignRequest campaignRequest) {
+        this.campaignService.editCampaign(campaignId, campaignRequest);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

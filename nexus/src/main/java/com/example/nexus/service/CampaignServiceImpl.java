@@ -6,7 +6,6 @@ import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.payload.request.CampaignRequest;
-import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import com.example.nexus.specification.CampaignSpecifications;
@@ -77,10 +76,8 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public Page<CampaignResponse> getCampaigns(Pageable pageable) {
-        return this.campaignRepository
-                .findAll(pageable)
-                .map(this.campaignMapper::campaignToCampaignResponse);
+    public Page<Campaign> getCampaigns(Pageable pageable) {
+        return this.campaignRepository.findAll(pageable);
     }
 
     @Override
@@ -100,11 +97,11 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public void editCampaign(String campaignName, CampaignRequest campaignRequest) {
-        final var campaign = this.campaignRepository.findByName(campaignName)
+    public void editCampaign(Long campaignId, CampaignRequest campaignRequest) {
+        final var campaign = this.campaignRepository.findById(campaignId)
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
 
-        this.campaignMapper.updateCampaignFromRequest(campaignRequest, campaign);
+        this.campaignMapper.updateCampaign(campaignRequest, campaign);
 
         this.campaignRepository.save(campaign);
     }

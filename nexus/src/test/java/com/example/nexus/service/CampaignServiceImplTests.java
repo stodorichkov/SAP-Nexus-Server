@@ -6,7 +6,6 @@ import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
 import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.CampaignRequest;
-import com.example.nexus.model.payload.response.CampaignResponse;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,6 @@ public class CampaignServiceImplTests {
     private static Campaign campaign;
     private static Product product;
     private static CampaignRequest campaignRequest;
-    private static CampaignResponse campaignResponse;
 
     @Mock
     private CampaignRepository campaignRepository;
@@ -50,6 +48,7 @@ public class CampaignServiceImplTests {
     @BeforeEach
     void setUp() {
         campaign = new Campaign();
+        campaign.setId(1L);
         campaign.setName("Campaign");
         campaign.setIsActive(false);
 
@@ -60,16 +59,9 @@ public class CampaignServiceImplTests {
         product.setCampaignDiscount(20);
 
         campaignRequest = new CampaignRequest(
-                "Campaign",
+                "Campaign1",
                 LocalDate.parse("2024-01-01"),
                 LocalDate.parse("2024-12-31")
-        );
-
-        campaignResponse = new CampaignResponse(
-                "Campaign",
-                LocalDate.parse("2024-01-01"),
-                LocalDate.parse("2024-12-31"),
-                false
         );
     }
 
@@ -159,11 +151,10 @@ public class CampaignServiceImplTests {
         final var pageable = Pageable.unpaged();
 
         when(this.campaignRepository.findAll(eq(pageable))).thenReturn(campaignPage);
-        when(this.campaignMapper.campaignToCampaignResponse(any(Campaign.class))).thenReturn(campaignResponse);
 
         final var result = this.campaignService.getCampaigns(pageable);
 
-        assertEquals(List.of(campaignResponse), result.getContent());
+        assertEquals(campaignPage.getContent(), result.getContent());
     }
 
     @Test
@@ -193,22 +184,20 @@ public class CampaignServiceImplTests {
     }
 
     @Test
-    public void EditCampaign() {
-        final var campaignName = "Test Campaign";
-        final var startDate = LocalDate.now();
-        final var endDate = startDate.plusDays(10);
-        final var campaignRequest = new CampaignRequest(campaignName, startDate, endDate);
-        final var campaign = new Campaign();
+    public void editCampaign_campaignNotExist_expectNotFoundException() {
+        assertThrows(
+                NotFoundException.class,
+                () -> this.campaignService.editCampaign(campaign.getId(), campaignRequest)
+        );
+    }
 
-        when(campaignRepository.findByName(campaignName)).thenReturn(Optional.of(campaign));
+    @Test
+    public void editCampaign() {
+        when(campaignRepository.findById(1L)).thenReturn(Optional.of(campaign));
 
-        campaignService.editCampaign(campaignName, campaignRequest);
+        campaignService.editCampaign(1L, campaignRequest);
 
-        verify(campaignRepository, times(1)).findByName(campaignName);
+        verify(campaignMapper).updateCampaign(campaignRequest, campaign);
         verify(campaignRepository, times(1)).save(campaign);
-
-        assertEquals(campaignName, campaign.getName());
-        assertEquals(startDate, campaign.getStartDate());
-        assertEquals(endDate, campaign.getEndDate());
     }
 }

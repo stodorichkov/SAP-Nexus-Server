@@ -136,7 +136,7 @@ public class ProductServiceImplTests {
 
         productCampaignRequest = new ProductCampaignRequest(
                 "Campaign",
-                50
+                20
         );
 
         productsRequest = new ProductsRequest(
@@ -231,6 +231,20 @@ public class ProductServiceImplTests {
     }
 
     @Test
+    void addProductCampaign_invalidDiscount_expectBadRequestException() {
+        final var request = new ProductCampaignRequest("Camapign", 40);
+
+        when(this.productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(this.campaignRepository.findByName(anyString())).thenReturn(Optional.of(campaign));
+
+        assertThrows(
+                BadRequestException.class,
+                () -> this.productService.addProductCampaign(1L, request)
+        );
+    }
+
+
+    @Test
     void addProductCampaign_campaignNotActive_expectAddProductWithoutDiscount() {
         product.setDiscount(0);
 
@@ -309,22 +323,15 @@ public class ProductServiceImplTests {
 
     @Test
     void editProduct() {
-        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
-        when(categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
-        when(fileService.upload(any())).thenReturn("imageUrl");
-        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(this.productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(this.categoryRepository.findByName(anyString())).thenReturn(Optional.of(new Category()));
+        when(this.fileService.upload(any())).thenReturn("imageUrl");
+        when(this.productRepository.save(any(Product.class))).thenReturn(product);
 
-        productService.editProduct(product.getId(), productRequestValidDiscount);
+        this.productService.editProduct(product.getId(), productRequestValidDiscount);
 
-        assertAll(
-            () -> assertEquals(productRequestValidDiscount.name(), product.getName()),
-            () -> assertEquals(productRequestValidDiscount.brand(), product.getBrand()),
-            () -> assertEquals(productRequestValidDiscount.description(), product.getDescription()),
-            () -> assertEquals(productRequestValidDiscount.price(), product.getPrice()),
-            () -> assertEquals(productRequestValidDiscount.minPrice(), product.getMinPrice()),
-            () -> assertEquals(productRequestValidDiscount.discount(), product.getDiscount()),
-            () -> assertEquals(productRequestValidDiscount.availability(), product.getAvailability())
-        );
+        verify(this.productMapper).updateProduct(productRequestValidDiscount, product);
+        verify(this.productRepository, times(1)).save(product);
     }
 
     @Test
@@ -387,7 +394,7 @@ public class ProductServiceImplTests {
     }
 
     @Test
-    void editProductCampaignDiscount_onlyCampaignDiscount() {
+    void editProductCampaignDiscount_inactiveCampaign_expectOnlyCampaignDiscount() {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
         campaign.setIsActive(false);
@@ -403,7 +410,7 @@ public class ProductServiceImplTests {
     }
 
     @Test
-    void editProductCampaignDiscount_bothDiscounts() {
+    void editProductCampaignDiscount_activeCampaign_expectBothDiscounts() {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
         campaign.setIsActive(true);
