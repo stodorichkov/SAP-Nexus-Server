@@ -66,8 +66,13 @@ public class ProductServiceImpl implements ProductService {
                 .findByName(productCampaignRequest.campaignName())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
 
+        if (isDiscountInvalid(product.getPrice(), product.getPrice(), productCampaignRequest.campaignDiscount())) {
+            throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
+        }
+
         product.setCampaign(campaign);
         product.setCampaignDiscount(productCampaignRequest.campaignDiscount());
+
         if (campaign.getIsActive()) {
             product.setDiscount(productCampaignRequest.campaignDiscount());
         }
