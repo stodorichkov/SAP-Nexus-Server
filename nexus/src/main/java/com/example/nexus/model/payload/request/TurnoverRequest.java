@@ -12,5 +12,5 @@ public record TurnoverRequest(
         LocalDate endDate
 ) {
         @AssertTrue(message = MessageConstants.INVALID_END_DATE)
-        public boolean isStartDateBeforeEndDate() { return startDate.isBefore(endDate); }
+        public boolean isStartDateBeforeEndDate() { return startDate.isBefore(endDate) || startDate.isEqual(endDate); }
 }
