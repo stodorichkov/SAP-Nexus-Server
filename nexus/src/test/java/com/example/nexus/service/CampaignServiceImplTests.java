@@ -200,4 +200,27 @@ public class CampaignServiceImplTests {
         verify(campaignMapper).updateCampaign(campaignRequest, campaign);
         verify(campaignRepository, times(1)).save(campaign);
     }
+
+    @Test
+    public void RemoveCampaign() {
+        final var campaignName = "Campaign";
+        final var products = List.of(product);
+
+        when(campaignRepository.findByName(campaignName)).thenReturn(Optional.of(campaign));
+        when(productRepository.findAllByCampaign(campaign)).thenReturn(products);
+
+        campaignService.removeCampaign(campaignName);
+
+        verify(campaignRepository, times(1)).findByName(campaignName);
+        verify(productRepository, times(1)).findAllByCampaign(campaign);
+        verify(productRepository, times(1)).saveAll(productsCaptor.capture());
+        verify(campaignRepository, times(1)).delete(campaignCaptor.capture());
+
+        final var capturedProducts = productsCaptor.getValue();
+        final var capturedCampaign = campaignCaptor.getValue();
+
+        assertEquals(0, capturedProducts.get(0).getCampaignDiscount());
+        assertNull(capturedProducts.get(0).getCampaign());
+        assertEquals(campaign, capturedCampaign);
+    }
 }

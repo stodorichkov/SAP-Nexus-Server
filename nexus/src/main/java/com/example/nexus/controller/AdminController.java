@@ -137,16 +137,16 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/campaigns/active")
-    @ResponseStatus(HttpStatus.OK)
-    public List<String> getActiveCampaigns() {
-        return this.campaignService.getActiveCampaigns();
-    }
-
     @PatchMapping("/campaign/{campaignId}")
     public ResponseEntity<?> editCampaign(@PathVariable Long campaignId, @Valid @RequestBody CampaignRequest campaignRequest) {
         this.campaignService.editCampaign(campaignId, campaignRequest);
 
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @DeleteMapping("/campaign/{campaignName}")
+    public ResponseEntity<?> removeCampaign(@PathVariable String campaignName) {
+        campaignService.removeCampaign(campaignName);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
