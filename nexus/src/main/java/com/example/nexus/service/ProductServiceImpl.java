@@ -34,13 +34,16 @@ public class ProductServiceImpl implements ProductService {
         final var category = this.categoryRepository
                 .findByName(productRequest.category())
                 .orElseThrow(() -> new NotFoundException(MessageConstants.CATEGORY_NOT_FOUND));
-        final var imageUrl = this.fileService.upload(productRequest.image());
 
         final var product = this.productMapper.productRequestToProduct(productRequest);
         product.setCategory(category);
-        product.setImageLink(imageUrl);
         product.setDiscount(0);
         product.setCampaignDiscount(0);
+
+        if(productRequest.image() != null) {
+            final var imageUrl = this.fileService.upload(productRequest.image());
+            product.setImageLink(imageUrl);
+        }
 
         this.productRepository.save(product);
     }
@@ -116,12 +119,13 @@ public class ProductServiceImpl implements ProductService {
             throw new BadRequestException(MessageConstants.INVALID_DISCOUNT_MIN_PRICE);
         }
 
-        final var imageUrl = this.fileService.upload(productRequest.image());
-
-
         this.productMapper.updateProduct(productRequest, product);
         product.setCategory(category);
-        product.setImageLink(imageUrl);
+
+        if(productRequest.image() != null) {
+            final var imageUrl = this.fileService.upload(productRequest.image());
+            product.setImageLink(imageUrl);
+        }
 
         this.productRepository.save(product);
     }

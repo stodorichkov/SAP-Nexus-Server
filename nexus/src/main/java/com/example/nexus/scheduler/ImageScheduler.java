@@ -26,14 +26,18 @@ public class ImageScheduler implements InitializingBean {
                 new File(this.imageConfig.getDir()).list())).toList();
 
         for (var fileName : fsImageFileNames) {
-            if (!dbImageFileNames.contains(imageConfig.getBaseUrl() + fileName)) {
-                final var file = new File(imageConfig.getDir() + '/' + fileName);
+            if (!dbImageFileNames.contains(this.imageConfig.getBaseUrl() + fileName)) {
+                final var file = new File(this.imageConfig.getDir() + '/' + fileName);
                 file.delete();
             }
         }
     }
+
     @Override
     public void afterPropertiesSet() throws Exception {
+        final var dir = new File(this.imageConfig.getDir());
+        dir.mkdirs();
+
         deleteImage();
     }
 }

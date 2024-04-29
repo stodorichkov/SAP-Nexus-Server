@@ -32,6 +32,7 @@ public record ProductRequest(
         @Max(value = 100, message = MessageConstants.INVALID_DISCOUNT)
         Integer discount,
 
+        @RequestParam(required = false)
         MultipartFile image
 ) {
     @AssertTrue(message = MessageConstants.INVALID_MIN_PRICE)

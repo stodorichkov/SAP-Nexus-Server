@@ -11,6 +11,7 @@ public record AdminProductResponse(
     Float price,
     Float minPrice,
     Integer discount,
-    Integer campaignDiscount
+    Integer campaignDiscount,
+    String imageLink
 ) {
 }

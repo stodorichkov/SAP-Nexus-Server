@@ -134,7 +134,8 @@ public class ProductServiceImplTests {
                 100f,
                 100f,
                 0,
-                0
+                0,
+                null
         );
 
         productCampaignRequest = new ProductCampaignRequest(
@@ -165,6 +166,7 @@ public class ProductServiceImplTests {
         when(this.categoryRepository.findByName(productRequestValidDiscount.category()))
                 .thenReturn(Optional.ofNullable(product.getCategory()));
         when(this.fileService.upload(productRequestValidDiscount.image())).thenThrow(FileUploadException.class);
+        when(this.productMapper.productRequestToProduct(productRequestValidDiscount)).thenReturn(product);
 
         verifyNoInteractions(this.productMapper, this.productRepository);
 
