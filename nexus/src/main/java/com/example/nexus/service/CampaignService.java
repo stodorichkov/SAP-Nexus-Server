@@ -14,4 +14,5 @@ public interface CampaignService {
     List<String> getCampaignsList();
     List<String> getActiveCampaigns();
     void editCampaign(Long campaignId, CampaignRequest campaignRequest);
+    void removeCampaign(String campaignName);
 }

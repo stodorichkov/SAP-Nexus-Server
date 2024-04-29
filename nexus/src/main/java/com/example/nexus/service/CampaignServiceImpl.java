@@ -5,6 +5,7 @@ import com.example.nexus.exception.AlreadyExistsException;
 import com.example.nexus.exception.NotFoundException;
 import com.example.nexus.mapper.CampaignMapper;
 import com.example.nexus.model.entity.Campaign;
+import com.example.nexus.model.entity.Product;
 import com.example.nexus.model.payload.request.CampaignRequest;
 import com.example.nexus.repository.CampaignRepository;
 import com.example.nexus.repository.ProductRepository;
@@ -104,5 +105,27 @@ public class CampaignServiceImpl implements CampaignService {
         this.campaignMapper.updateCampaign(campaignRequest, campaign);
 
         this.campaignRepository.save(campaign);
+    }
+
+    @Override
+    public void removeCampaign(String campaignName) {
+        final var campaign = this.campaignRepository.findByName(campaignName)
+                .orElseThrow(() -> new NotFoundException(MessageConstants.CAMPAIGN_NOT_FOUND));
+
+        final var products = this.productRepository.findAllByCampaign(campaign);
+
+        for (Product product : products) {
+            product.setCampaignDiscount(0);
+            if (campaign.getIsActive()) {
+                product.setDiscount(0);
+            } else {
+                product.setDiscount(product.getDiscount());
+            }
+            product.setCampaign(null);
+        }
+
+        this.productRepository.saveAll(products);
+
+        this.campaignRepository.delete(campaign);
     }
 }
