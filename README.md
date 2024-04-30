@@ -5,7 +5,7 @@ __Idea description:__<br>
 Online shop for tennis equipment
 
 __Technologies:__
-- [Java (Android app)](https://www.android.com/)
+- [Java]([https://www.android.com/](https://www.java.com/en/))
 - [Spring](https://spring.io/)
 - [MySQL](https://www.mysql.com/)
 - [Nginx](https://www.nginx.com/)
